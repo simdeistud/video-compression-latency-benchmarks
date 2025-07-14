@@ -1,0 +1,8 @@
+The raw video material needs to be processed in the following manner:
+  - concatenated to single video file
+  - reduced framerate to 30 (without slowdown, drop half the frames)
+  - limited to 1000 frames
+  - scaled to 16:9 ratio
+  - reduced to 8bit depth
+  - downscaled copies to 1920x1080 and 1280x720
+  - converted copies to RGB24
