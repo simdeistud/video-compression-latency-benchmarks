@@ -1,0 +1,10 @@
+The videos chosen for the compression benchmarks are the following:
+https://media.xiph.org/video/derf/ElFuente/Netflix_Tango_4096x2160_60fps_10bit_420.y4m
+https://media.xiph.org/video/derf/ElFuente/Netflix_Narrator_4096x2160_60fps_10bit_420.y4m
+https://media.xiph.org/video/derf/ElFuente/Netflix_Crosswalk_4096x2160_60fps_10bit_420.y4m
+https://media.xiph.org/video/derf/ElFuente/Netflix_SquareAndTimelapse_4096x2160_60fps_10bit_420.y4m
+
+They have been selected from the Derf's Test Media Collection hosted at Xiph.org because of the following reasons:
+  - 4k resolution
+  - uncompressed y4m format with 420 subsampling
+  - easily available for future research
