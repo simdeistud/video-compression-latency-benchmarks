@@ -16,7 +16,7 @@ urls=(
 
 # Download each file to the destination directory
 for url in "${urls[@]}"; do
-    filename=$(basename "$url")
+    filename=$((i + 1))
     wget -O "$DEST_DIR/$filename" "$url"
 done
 
