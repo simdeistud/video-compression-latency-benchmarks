@@ -12,8 +12,7 @@ $urls = @(
     "https://media.xiph.org/video/derf/ElFuente/Netflix_SquareAndTimelapse_4096x2160_60fps_10bit_420.y4m"
 )
 
-foreach ($url in $urls) {
-    $filename = Split-Path $url -Leaf
-    $outputPath = Join-Path -Path $destinationFolder -ChildPath $filename
-    Invoke-WebRequest -Uri $url -OutFile $outputPath
+for ($i = 0; $i -lt $urls.Count; $i++) {
+    $outputFile = Join-Path -Path $destinationFolder -ChildPath "$($i + 1).y4m"
+    Invoke-WebRequest -Uri $urls[$i] -OutFile $outputFile
 }
