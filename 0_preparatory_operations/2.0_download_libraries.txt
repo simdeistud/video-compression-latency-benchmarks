@@ -1,0 +1,31 @@
+The image compression libraries used in this benchmarking survey are the following, ordered based on the respective coded:
+
+JPEG:
+  - libjpeg
+  - libjpeg-turbo
+  - jpegli
+  - sjpeg
+  - nvjpeg (already included if cuda is installed)
+  - gpujpeg
+
+JPEG XL:
+  - libjxl
+
+AVIF:
+  - libavif (svt-av1, libaom, rav1)
+
+WEBP:
+  - libwebp
+
+H264 I-frame mode:
+  - libx264
+  - nvenc
+  - intel qsv
+
+AV1 I-frame mode:
+  - nvenc
+  - intel qsv
+
+VC-2:
+
+The libraries will be compiled inside 2_libraries in their own respective folder. Whenever possible, a stable version of the library will be used, otherwise the latest git repository will be downloaded.
