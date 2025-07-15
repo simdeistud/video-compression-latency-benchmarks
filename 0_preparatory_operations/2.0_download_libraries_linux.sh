@@ -29,3 +29,27 @@ unzip ../2_libraries/gpujpeg/src.zip -d ../2_libraries/gpujpeg
 rm ../2_libraries/gpujpeg/src.zip
 cp -r ../2_libraries/gpujpeg/GPUJPEG-0.25.7/* ../2_libraries/gpujpeg/
 rm -r ../2_libraries/gpujpeg/GPUJPEG-0.25.7
+
+# Download libjxl version 0.11.1 (26-11-2024)
+mkdir ../2_libraries/libjxl
+wget -O ../2_libraries/libjxl/src.zip https://github.com/libjxl/libjxl/archive/refs/tags/v0.11.1.zip
+unzip ../2_libraries/libjxl/src.zip -d ../2_libraries/libjxl
+rm ../2_libraries/libjxl/src.zip
+cp -r ../2_libraries/libjxl/libjxl-0.11.1/* ../2_libraries/libjxl/
+rm -r ../2_libraries/libjxl/libjxl-0.11.1
+
+# Download libavif version 1.3.0 (09-05-2025)
+mkdir ../2_libraries/libavif
+wget -O ../2_libraries/libavif/src.zip https://github.com/AOMediaCodec/libavif/archive/refs/tags/v1.3.0.zip
+unzip ../2_libraries/libavif/src.zip -d ../2_libraries/libavif
+rm ../2_libraries/libavif/src.zip
+cp -r ../2_libraries/libavif/libavif-1.3.0/* ../2_libraries/libavif/
+rm -r ../2_libraries/libavif/libavif-1.3.0
+
+# Download libwebp version 1.6.0 (30-06-2025)
+mkdir ../2_libraries/libwebp
+wget -O ../2_libraries/libwebp/src.zip https://github.com/webmproject/libwebp/archive/refs/tags/v1.6.0.zip
+unzip ../2_libraries/libwebp/src.zip -d ../2_libraries/libwebp
+rm ../2_libraries/libwebp/src.zip
+cp -r ../2_libraries/libwebp/libwebp-1.6.0/* ../2_libraries/libwebp/
+rm -r ../2_libraries/libwebp/libwebp-1.6.0
