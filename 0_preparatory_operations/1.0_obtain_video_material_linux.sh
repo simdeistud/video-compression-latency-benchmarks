@@ -14,9 +14,9 @@ urls=(
     "https://media.xiph.org/video/derf/ElFuente/Netflix_SquareAndTimelapse_4096x2160_60fps_10bit_420.y4m"
 )
 
-# Download each file to the destination directory
-for url in "${urls[@]}"; do
-    filename=$((i + 1))
-    wget -O "$DEST_DIR/$filename.y4m" "$url"
+# Download each file with a numbered filename
+for i in "${!urls[@]}"; do
+    index=$((i + 1))
+    wget -O "$DEST_DIR/$index.y4m" "${urls[$i]}"
 done
 
