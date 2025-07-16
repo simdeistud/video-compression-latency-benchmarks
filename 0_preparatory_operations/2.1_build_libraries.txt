@@ -55,6 +55,10 @@ Simply run the following commands inside the project's folder"
   cmake --build build --config Release
 The built files will be placed inside the /build directory
 
+# How to build libavif on Windows (requires nasm/yasm, meson, rust, perl):
+  cmake -S libavif -B libavif/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AOM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_CODEC_DAV1D=LOCAL -DAVIF_CODEC_LIBGAV1=LOCAL -DAVIF_CODEC_RAV1E=LOCAL -DAVIF_CODEC_SVT=LOCAL -DAVIF_BUILD_APPS=ON
+  cmake --build libavif/build --config Debug --parallel
+
 # How to build libwebp on Windows
 Simply run the following command inside the project's folder:
   nmake /f Makefile.vc CFG=release-static RTLIBCFG=static OBJDIR=output
