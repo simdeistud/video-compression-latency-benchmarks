@@ -4,7 +4,6 @@ JPEG:
   - libjpeg
   - libjpeg-turbo
   - jpegli
-  - sjpeg
   - nvjpeg (already included if cuda is installed)
   - gpujpeg
 
