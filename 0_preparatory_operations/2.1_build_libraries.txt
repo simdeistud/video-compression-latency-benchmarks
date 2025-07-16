@@ -1,0 +1,64 @@
+# How to build libjpeg on Windows
+1. Ensure you’ve checked the item "Desktop development with C++" in the
+   Workloads tab of Visual Studio Installer.
+   Open the Developer Command Prompt for VS 2019-2022, change to the
+   source directory and execute the command line
+	nmake /f makefile.vs setup-v16
+   This will move jconfig.vc to jconfig.h and makefiles to project files.
+   (Note that the renaming is critical!)
+   Alternatively you can use
+	nmake /f makefile.vs setupcopy-v16
+   This will create renamed copies of the files,
+   which allows to repeat the setup later.
+2. Open the solution file jpeg.sln, build the library project.
+     a) If you are using Visual Studio more recent than
+	2022 version 17, you'll possibly get a message
+	saying that the project files are being updated.
+     b) If necessary, open the project properties and adapt the
+	Windows Target Platform Version (or Windows SDK Version)
+	in the Configuration Properties, General section.
+     c) If you get a warning saying that a platform cannot be found,
+	you can either
+	  * forgo the platform and ignore the warning, or
+	  * remove the platform in the Configuration Manager, or
+	  * install the corresponding platform build tools in
+	    Visual Studio Installer (Workloads tab Optional components
+	    or Individual components tab).
+     d) If you want to build x64 code, change the platform setting from
+	Win32 to x64.  You can build Win32 and x64 versions side by side.
+     e) If you want to build ARM/ARM64/ARM64EC code, change the platform
+	setting to ARM/ARM64/ARM64EC.  Ensure you’ve installed the
+	ARM/ARM64/ARM64EC build tools in Visual Studio Installer
+	(Workloads tab Optional components or Individual components tab).
+	You can build Win32/x64/ARM/ARM64/ARM64EC versions side by side.
+3. Open the solution file apps.sln, build the application projects.
+4. To perform the self-test, execute the command line
+	nmake /f makefile.vs test-32
+   for the Win32 build, or on a 64-bit system
+	nmake /f makefile.vs test-64
+   for the x64 build.
+   Note: test options for ARM code will be added
+   as soon as Windows on ARM reference devices are available.
+   To date there are no Windows on ARM reference devices available.
+5. Move the application .exe files from the Release folder to an
+   appropriate location on your path.
+
+# How to build libjpeg-turbo on Windows
+Simply run the following commands inside the project's folder:
+  cmake -G"NMake Makefiles" -DCMAKE_BUILD_TYPE=Release . 
+  nmake
+The library will be build in the same folder
+
+# How to build gpujpeg on Windows and Linux
+Simply run the following commands inside the project's folder"
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=native -Bbuild .
+  cmake --build build --config Release
+The built files will be placed inside the /build directory
+
+# How to build libwebp on Windows
+Simply run the following command inside the project's folder:
+  nmake /f Makefile.vc CFG=release-static RTLIBCFG=static OBJDIR=output
+
+# How to build libwebp on Linux
+Simply run the following command inside the project's folder (requires gcc, make, libpng, libjpeg, libtiff, and libgif to be installed):
+  make -f makefile.unix

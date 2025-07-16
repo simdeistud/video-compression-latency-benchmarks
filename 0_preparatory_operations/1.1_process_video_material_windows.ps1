@@ -57,5 +57,14 @@ ffmpeg -i "$basePath\video_material_ultrahd.y4m" -q:v 2 -vsync 0 $basePath\bmps\
 ffmpeg -i "$basePath\video_material_fullhd.y4m" -q:v 2 -vsync 0 $basePath\bmps\fullhd\fullhd_frame_%04d.bmp
 ffmpeg -i "$basePath\video_material_hd.y4m" -q:v 2 -vsync 0 $basePath\bmps\hd\hd_frame_%04d.bmp
 
+New-Item -ItemType Directory -Force -Path $basePath\tiffs\hd
+New-Item -ItemType Directory -Force -Path $basePath\tiffs\fullhd
+New-Item -ItemType Directory -Force -Path $basePath\tiffs\ultrahd
+
+# Create tiff versions
+ffmpeg -i "$basePath\video_material_ultrahd.y4m" -q:v 2 -vsync 0 $basePath\tiffs\ultrahd\ultrahd_frame_%04d.tiff
+ffmpeg -i "$basePath\video_material_fullhd.y4m" -q:v 2 -vsync 0 $basePath\tiffs\fullhd\fullhd_frame_%04d.tiff
+ffmpeg -i "$basePath\video_material_hd.y4m" -q:v 2 -vsync 0 $basePath\tiffs\hd\hd_frame_%04d.tiff
+
 # Clean up
 Remove-Item $tempList
