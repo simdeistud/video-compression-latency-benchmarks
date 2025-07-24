@@ -6,12 +6,14 @@ JPEG:
   - jpegli
   - nvjpeg (already included if cuda is installed)
   - gpujpeg
+  - Intel VPL (?)
+  - AMD rocJPEG (?) [decode only]
 
 JPEG XL:
   - libjxl
 
 AVIF:
-  - libavif (svt-av1, libaom, rav1)
+  - libavif (svt-av1, libaom, rav1, dav1, gav1)
 
 WEBP:
   - libwebp

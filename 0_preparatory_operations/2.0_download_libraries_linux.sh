@@ -16,24 +16,20 @@ rm ../2_libraries/libjpeg-turbo/src.zip
 cp -r ../2_libraries/libjpeg-turbo/libjpeg-turbo-3.1.1/* ../2_libraries/libjpeg-turbo/
 rm -r ../2_libraries/libjpeg-turbo/libjpeg-turbo-3.1.1
 
-# Dowload jpegli git version
-git -C ../2_libraries clone https://github.com/google/jpegli.git
-
 # Dowload gpujpeg version 0.27.7 (10-07-2025)
 mkdir ../2_libraries/gpujpeg
-wget -O ../2_libraries/gpujpeg/src.zip https://github.com/CESNET/GPUJPEG/archive/refs/tags/v0.25.7.zip
+wget -O ../2_libraries/gpujpeg/src.zip https://github.com/CESNET/GPUJPEG/archive/refs/tags/v0.27.7.zip
 unzip ../2_libraries/gpujpeg/src.zip -d ../2_libraries/gpujpeg
 rm ../2_libraries/gpujpeg/src.zip
-cp -r ../2_libraries/gpujpeg/GPUJPEG-0.25.7/* ../2_libraries/gpujpeg/
-rm -r ../2_libraries/gpujpeg/GPUJPEG-0.25.7
+cp -r ../2_libraries/gpujpeg/GPUJPEG-0.27.7/* ../2_libraries/gpujpeg/
+rm -r ../2_libraries/gpujpeg/GPUJPEG-0.27.7
 
-# Download libjxl version 0.11.1 (26-11-2024)
+# Download jpegli + libjxl version 0.11.1 (26-11-2024)
 mkdir ../2_libraries/libjxl
-wget -O ../2_libraries/libjxl/src.zip https://github.com/libjxl/libjxl/archive/refs/tags/v0.11.1.zip
-unzip ../2_libraries/libjxl/src.zip -d ../2_libraries/libjxl
-rm ../2_libraries/libjxl/src.zip
-cp -r ../2_libraries/libjxl/libjxl-0.11.1/* ../2_libraries/libjxl/
-rm -r ../2_libraries/libjxl/libjxl-0.11.1
+mkdir ../2_libraries/jpegli
+wget -O ../2_libraries/libjxl/lib.zip https://github.com/libjxl/libjxl/releases/download/v0.11.1/jxl-x64-windows-static.zip
+unzip ../2_libraries/libjxl/lib.zip -d ../2_libraries/libjxl
+rm ../2_libraries/libjxl/lib.zip
 
 # Download libavif version 1.3.0 (09-05-2025)
 mkdir ../2_libraries/libavif
@@ -50,3 +46,9 @@ unzip ../2_libraries/libwebp/src.zip -d ../2_libraries/libwebp
 rm ../2_libraries/libwebp/src.zip
 cp -r ../2_libraries/libwebp/libwebp-1.6.0/* ../2_libraries/libwebp/
 rm -r ../2_libraries/libwebp/libwebp-1.6.0
+
+# Download libx264 version 0.165.r3222 (14-06-2025) [WINDOWS ONLY!!!]
+mkdir ../2_libraries/libx264
+wget -O ../2_libraries/libx264/lib.zip https://github.com/ShiftMediaProject/x264/releases/download/0.165.r3222/libx264_0.165.r3222_msvc17.zip
+unzip ../2_libraries/libx264/lib.zip -d ../2_libraries/libx264/
+rm ../2_libraries/libx264/lib.zip
