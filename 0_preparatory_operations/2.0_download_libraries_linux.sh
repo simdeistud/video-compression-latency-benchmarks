@@ -19,9 +19,6 @@ rm -r ../2_libraries/libjpeg-turbo/libjpeg-turbo-3.1.1
 # Dowload jpegli git version
 git -C ../2_libraries clone https://github.com/google/jpegli.git
 
-# Dowload sjpeg git version
-git -C ../2_libraries clone https://github.com/webmproject/sjpeg.git
-
 # Dowload gpujpeg version 0.27.7 (10-07-2025)
 mkdir ../2_libraries/gpujpeg
 wget -O ../2_libraries/gpujpeg/src.zip https://github.com/CESNET/GPUJPEG/archive/refs/tags/v0.25.7.zip

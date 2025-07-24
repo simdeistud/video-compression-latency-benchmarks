@@ -55,7 +55,7 @@ Simply run the following commands inside the project's folder"
   cmake --build build --config Release
 The built files will be placed inside the /build directory
 
-# How to build libxjxl on Windows
+# How to build libxjxl on Windows (FOR NOW JUST DOWNLOAD THE PRECOMPILED BINARIES)
 Install vcpkg from git (https://learn.microsoft.com/it-it/vcpkg/get_started/get-started?pivots=shell-cmd),
 run:
   vcpkg install highway
