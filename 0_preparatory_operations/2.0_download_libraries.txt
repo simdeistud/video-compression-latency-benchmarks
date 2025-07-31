@@ -14,6 +14,9 @@ JPEG XL:
 
 AVIF:
   - libavif (svt-av1, libaom, rav1, dav1, gav1)
+  
+AV2
+  - libavif (avm)
 
 WEBP:
   - libwebp
@@ -22,11 +25,17 @@ H264 I-frame mode:
   - libx264
   - nvenc
   - intel qsv
+  
+VP9 I-frame mode:
+  - intel qsv
 
 AV1 I-frame mode:
   - nvenc
   - intel qsv
 
 VC-2:
+  - BBC-reference
+  - BBC-HQ
+  - ffmpeg
 
 The libraries will be compiled inside 2_libraries in their own respective folder. Whenever possible, a stable version of the library will be used, otherwise the latest git repository will be downloaded.

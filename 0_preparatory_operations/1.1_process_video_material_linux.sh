@@ -1,8 +1,12 @@
 #!/bin/bash
 
+echo "file 1.y4m" > ../1_video_material/files.txt
+echo "file 2.y4m" >> ../1_video_material/files.txt
+echo "file 3.y4m" >> ../1_video_material/files.txt
+echo "file 4.y4m" >> ../1_video_material/files.txt
 # Creates the y4m master video file
 ffmpeg \
-  -f concat -safe 0 -i <(for f in {1..4}; do echo "file '../1_video_material/$f.y4m'"; done) \
+  -f concat -safe 0 -i ../1_video_material/files.txt \
   -vf "fps=30,select='not(mod(n\,2))',format=yuv420p" \
   -frames:v 500 \
   -pix_fmt yuv420p \
@@ -42,4 +46,4 @@ ffmpeg -i ../1_video_material/video_material.y4m \
   -pix_fmt yuv420p \
   -f rawvideo ../1_video_material/video_material_hd.rgb
 
-
+rm ../1_video_material/files.txt
