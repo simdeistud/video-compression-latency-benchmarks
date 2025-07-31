@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Build libjpeg
+cd ../2_libraries/libjpeg/
+./configure
+cd ../../0_preparatory_operations
+make --directory=../2_libraries/libjpeg/ -j ($nproc)
+make --directory=../2_libraries/libjpeg/ test
+
+# Build libjpeg-turbo
+cmake -S ../2_libraries/libjpeg-turbo -B ../2_libraries/libjpeg-turbo/build -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+cmake --build ../2_libraries/libjpeg-turbo/build --parallel
+
+# Build libjxl + jpegli
+cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF -S ../2_libraries/libjxl-jpegli/ -B ../2_libraries/libjxl-jpegli/build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ 
+cmake --build ../2_libraries/libjxl-jpegli/build --config Debug --parallel
+
+# Build gpujpeg
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CUDA_ARCHITECTURES=native -B ../2_libraries/gpujpeg/build -S ../2_libraries/gpujpeg -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+cmake --build ../2_libraries/gpujpeg/build --config Debug --parallel
+
+# Build libwebp
+cmake -S ../2_libraries/libwebp -B ../2_libraries/libwebp/build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+cmake --build ../2_libraries/libwebp/build --config Debug --parallel
+
+# Build libavif
+cmake -DCMAKE_BUILD_TYPE=Debug -S ../2_libraries/libavif -B ../2_libraries/libavif/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AOM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_CODEC_DAV1D=LOCAL -DAVIF_CODEC_LIBGAV1=LOCAL -DAVIF_CODEC_RAV1E=LOCAL -DAVIF_CODEC_SVT=LOCAL -DAVIF_BUILD_APPS=ON 
+scmake --build ../2_libraries/libavif/build --config Debug --parallel # RAM HUNGRY, REMOVE --parallel IF IT CRASHES
+  
+# Build libavif for AV2 
+cmake -DCMAKE_BUILD_TYPE=Debug -S ../2_libraries/libavif-av2 -B ../2_libraries/libavif-av2/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AVM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_BUILD_APPS=ON 
+cmake --build ../2_libraries/libavif-av2/build --config Debug --parallel # RAM HUNGRY, REMOVE --parallel IF IT CRASHES
+
+# Build libx264
+cd ../2_libraries/x264/
+./configure --enable-lto --enable-pic --enable-shared --enable-static --enable-debug # debug and lto are mutually exclusive, when deploying remove debug
+cd ../../0_preparatory_operations
+make --directory=../2_libraries/x264/ -j ($nproc)
+
