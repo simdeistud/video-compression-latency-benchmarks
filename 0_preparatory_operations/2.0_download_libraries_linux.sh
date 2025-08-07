@@ -51,10 +51,10 @@ rm -r ../2_libraries/libwebp/libwebp-1.6.0
 # Download libx264 stable
 git clone --branch stable --depth 1 --recursive --shallow-submodules https://code.videolan.org/videolan/x264.git ../2_libraries/x264
 
-# Download VC-2 reference
-git clone https://github.com/bbc/vc2-reference.git ../2_libraries/vc2-reference
-wget -O ../2_libraries/vc2-reference/m4/ax_cxx_compile_stdcxx.m4 "https://gitweb.git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_cxx_compile_stdcxx.m4"
-
 # Download VC-2 HQ
 git clone https://github.com/bbc/vc2hqencode.git ../2_libraries/vc2-hq/encode
 git clone https://github.com/bbc/vc2hqdecode.git ../2_libraries/vc2-hq/decode
+
+# Download VC-2 reference
+git clone https://github.com/bbc/vc2-reference.git ../2_libraries/vc2-reference
+cp ../2_libraries/vc2-hq/encode/m4/ax_cxx_compile_stdcxx_11.m4 ../2_libraries/vc2-reference/m4/ax_cxx_compile_stdcxx_11.m4
