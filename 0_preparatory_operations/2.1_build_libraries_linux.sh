@@ -25,7 +25,8 @@ cmake --build ../2_libraries/libwebp/build --config Debug --parallel
 
 # Build libavif
 cmake -DCMAKE_BUILD_TYPE=Debug -S ../2_libraries/libavif -B ../2_libraries/libavif/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AOM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_CODEC_DAV1D=LOCAL -DAVIF_CODEC_LIBGAV1=LOCAL -DAVIF_CODEC_RAV1E=LOCAL -DAVIF_CODEC_SVT=LOCAL -DAVIF_BUILD_APPS=ON 
-scmake --build ../2_libraries/libavif/build --config Debug --parallel # RAM HUNGRY, REMOVE --parallel IF IT CRASHES
+s
+cmake --build ../2_libraries/libavif/build --config Debug --parallel # RAM HUNGRY, REMOVE --parallel IF IT CRASHES
   
 # Build libavif for AV2 
 cmake -DCMAKE_BUILD_TYPE=Debug -S ../2_libraries/libavif-av2 -B ../2_libraries/libavif-av2/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AVM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_BUILD_APPS=ON 
