@@ -4,7 +4,7 @@
 cd ../2_libraries/libjpeg/
 ./configure
 cd ../../0_preparatory_operations
-make --directory=../2_libraries/libjpeg/ -j ($nproc)
+make --directory=../2_libraries/libjpeg/ -j $(nproc)
 make --directory=../2_libraries/libjpeg/ test
 
 # Build libjpeg-turbo
@@ -35,5 +35,39 @@ cmake --build ../2_libraries/libavif-av2/build --config Debug --parallel # RAM H
 cd ../2_libraries/x264/
 ./configure --enable-lto --enable-pic --enable-shared --enable-static --enable-debug # debug and lto are mutually exclusive, when deploying remove debug
 cd ../../0_preparatory_operations
-make --directory=../2_libraries/x264/ -j ($nproc)
+make --directory=../2_libraries/x264/ -j $(nproc)
 
+# Build VC-2 reference
+cd ../2_libraries/vc2-reference/
+# configure.ac needs to be modified in the following way:
+# add AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory]) below AC_PROG_CXX 
+# add AC_PROG_CC below AC_PROG_CXX 
+# fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
+# fix AS_NANO with AS_NANO([VC2REFERENCE_CVS=no], [VC2REFERENCE_CVS=yes])
+./autogen.sh
+./configure --enable-shared --enable-static
+cd ../../0_preparatory_operations
+make --directory=../2_libraries/vc2-reference/ -j $(nproc)
+
+# Build VC-2 HQ
+echo sed '#!/bin/bash' > ../2_libraries/vc2-hq/encode/duplicate-transform
+echo sed '"s/$3/$4/g" "$1" > "$2"' >> ../2_libraries/vc2-hq/encode/duplicate-transform
+cd ../2_libraries/vc2-hq/encode
+# configure.ac needs to be modified in the following way:
+# move AX_CXX_COMPILE_STDCXX_11 below AC_PROG_CXX 
+# add AC_PROG_CC below AC_PROG_CXX 
+# fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
+# fix AS_NANO with AS_NANO([VC2HQENCODE_CVS=no],[VC2HQENCODE_CVS=yes])
+./autogen.sh
+./configure --enable-shared --enable-static
+cd ../decode
+# configure.ac needs to be modified in the following way:
+# move AX_CXX_COMPILE_STDCXX_11 below AC_PROG_CXX 
+# add AC_PROG_CC below AC_PROG_CXX 
+# fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
+# fix AS_NANO with AS_NANO([VC2HQDECODE_CVS=no],[VC2HQDECODE_CVS=yes])
+./autogen.sh
+./configure --enable-shared --enable-static
+cd ../../../0_preparatory_operations
+make --directory=../2_libraries/vc2-hq/encode/ -j $(nproc)
+make --directory=../2_libraries/vc2-hq/decode/ -j $(nproc)
