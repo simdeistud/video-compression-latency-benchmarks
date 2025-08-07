@@ -1,0 +1,17 @@
+15,17c15
+< fi;
+< 
+< AX_CXX_COMPILE_STDCXX_11
+---
+> fi
+19c17
+< AS_NANO(VC2HQENCODE_CVS=no,VC2HQENCODE_CVS=yes)
+---
+> AS_NANO([VC2HQENCODE_CVS=no],[VC2HQENCODE_CVS=yes])
+44a43,44
+> AX_CXX_COMPILE_STDCXX_11
+> AC_PROG_CC
+80c80
+<    if test "x${HAVE_BOOST}" == xyes ; then
+---
+>    if test "x${HAVE_BOOST}" = xyes ; then

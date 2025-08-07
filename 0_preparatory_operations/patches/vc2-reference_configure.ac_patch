@@ -1,0 +1,19 @@
+1c1
+< AC_PREREQ([2.68])
+---
+> AC_PREREQ([2.71])
+15c15
+< fi;
+---
+> fi
+17c17
+< AS_NANO(VC2REFERENCE_CVS=no,VC2REFERENCE_CVS=yes)
+---
+> AS_NANO([VC2REFERENCE_CVS=no], [VC2REFERENCE_CVS=yes])
+32a33,34
+> AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+> AC_PROG_CC
+95c97
+< VC2REFERENCE_LIBS="\$(top_builddir)/src/Libaray/libVC2-$VC2REFERENCE_MAJORMINOR.la"
+---
+> VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
