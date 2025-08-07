@@ -38,6 +38,7 @@ cd ../../0_preparatory_operations
 make --directory=../2_libraries/x264/ -j $(nproc)
 
 # Build VC-2 reference
+patch ../2_libraries/vc2-reference/configure.ac ./patches/vc2-reference_configure.ac_patch
 cd ../2_libraries/vc2-reference/
 # configure.ac needs to be modified in the following way:
 # add AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory]) below AC_PROG_CXX 
@@ -52,6 +53,8 @@ make --directory=../2_libraries/vc2-reference/ -j $(nproc)
 # Build VC-2 HQ
 echo sed '#!/bin/bash' > ../2_libraries/vc2-hq/encode/duplicate-transform
 echo sed '"s/$3/$4/g" "$1" > "$2"' >> ../2_libraries/vc2-hq/encode/duplicate-transform
+patch ../2_libraries/vc2-hq/encode/configure.ac ./patches/vc2-hq-encode_configure.ac_patch
+patch ../2_libraries/vc2-hq/decode/configure.ac ./patches/vc2-hq-decode_configure.ac_patch
 cd ../2_libraries/vc2-hq/encode
 # configure.ac needs to be modified in the following way:
 # move AX_CXX_COMPILE_STDCXX_11 below AC_PROG_CXX 
