@@ -63,4 +63,18 @@ int img_save(char path[], char** img, size_t img_size) {
     return 0; // Success
 }
 
+/*
+ * Destroys a previously loaded image.
+ * Parameters:
+ *   img       - pointer to the buffer that holds the image data
+ * Returns:
+ *   0 on success, non-zero on failure
+ */
+int img_destroy(char* img) {
+    if (!img) {
+        return 1; // NULL pointer
+    }
+    return free(img);
+}
+
 #endif // IMG_UTILS_H
