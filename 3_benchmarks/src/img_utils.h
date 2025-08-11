@@ -18,7 +18,7 @@ int img_load(char path[], char** img, size_t* img_size) {
     if (!file) {
         return 1; // Failed to open file
     }
-
+    
     fseek(file, 0, SEEK_END);
     *img_size = ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -74,7 +74,8 @@ int img_destroy(char* img) {
     if (!img) {
         return 1; // NULL pointer
     }
-    return free(img);
+    free(img);
+    return 0;
 }
 
 #endif // IMG_UTILS_H
