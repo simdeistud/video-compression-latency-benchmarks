@@ -1,11 +1,7 @@
-#include "img_utils.h"
+#include "../img_utils.h"
 #include "jpeglib.h"
+#include <time.h>
 
-/* Program input syntax:
-   Filepath; Resolution[3840|1920|720 (16:9 only!)]; iterations[1...n];
-   subsampling[444|422|420|0(grayscale)]; quality[0...100]; Arithmetic|Huffman[0|1];
-   DCT_SLOW|DCT_FAST|DCT_FLOAT [0|1|2]; RestartInterval[0...n]
-*/
 int main(int argc, char** argv)
 {
   /* Input image related data */
@@ -36,6 +32,22 @@ int main(int argc, char** argv)
   int iterations = 1;
   
   /* Input parsing */
+  
+  if (argc == 1) {
+    printf("\nProgram Input Syntax:\n\n");
+    printf("  ┌────────────────────────────────────────────────────────────┐\n");
+    printf("  │ Filepath          : RGB24 filepath                         │\n");
+    printf("  │ Resolution        : 3840 | 1920 | 1280  (16:9 only!)       │\n");
+    printf("  │ Iterations        : 1 ... n                                │\n");
+    printf("  │ Subsampling       : 444 | 422 | 420 | 0 (grayscale)        │\n");
+    printf("  │ Quality           : 0 ... 100                              │\n");
+    printf("  │ Compression       : 0 = Huffman | 1 = Arithmetic           │\n");
+    printf("  │ DCT Method        : 0 = SLOW | 1 = FAST | 2 = FLOAT        │\n");
+    printf("  │ Restart Interval  : 0 ... n                                │\n");
+    printf("  └────────────────────────────────────────────────────────────┘\n");
+    return 1;
+}
+
   
   /* Parsing Resolution argv[2] */
   if((img_w = atoi(argv[2])) == 0){
@@ -91,10 +103,15 @@ int main(int argc, char** argv)
   /* Parsing restart interval argv[8] */
   restart_interval = atoi(argv[8]);
   
+  if(img_load(argv[1], &inbuf, &inbuf_size)){
+    fprintf(stderr, "Error: Failed to load image from file: %s\n", argv[1]);
+    return 1;
+  }
+  
   /* Initializing the encoder */
   cinfo.err = jpeg_std_error(&jerr);
   jpeg_create_compress(&cinfo);
-  jpeg_mem_dest(&cinfo, &outbuf, &outbuf_size);
+  jpeg_mem_dest(&cinfo, (unsigned char**)&outbuf, &outbuf_size);
   
   /* Setting up the input image parameters */
   cinfo.image_width = img_h;
@@ -106,16 +123,11 @@ int main(int argc, char** argv)
   jpeg_set_defaults(&cinfo);
   jpeg_set_quality(&cinfo, q, TRUE);  /* Compression quality, chosen by the user */
   jpeg_set_colorspace (&cinfo, colorspace); /* Output colorspace, chosen by the user  */
-  cinfo->comp_info[0].v_samp_factor = v_sampling;    /* Chroma subsampling options, chosen by the user */
-  cinfo->comp_info[0].h_samp_factor = h_sampling;
+  cinfo.comp_info[0].v_samp_factor = v_sampling;    /* Chroma subsampling options, chosen by the user */
+  cinfo.comp_info[0].h_samp_factor = h_sampling;
   cinfo.arith_code = arith;                 /* Arthmetic or Huffman encoding, chosen by the user */
   cinfo.dct_method = dct;          /* Default or fast DCT, chosen by the user */
   cinfo.restart_interval = restart_interval;               /* Presence of restart intervals, chosen by the user */
-  
-  if(img_load(argv[1], &inbuf, &inbuf_size)){
-    fprintf(stderr, "Error: Failed to load image from file: %s\n", argv[1]);
-    return 1;
-  }
   
   start_time = clock();
   /* Compression begins here, parameters and input image
@@ -123,7 +135,7 @@ int main(int argc, char** argv)
   for(int i = 0; i < iterations; i++){
     jpeg_start_compress(&cinfo, TRUE);
     while (cinfo.next_scanline < cinfo.image_height) {
-      row_pointer[0] = inbuf[cinfo.next_scanline * cinfo.image_width * cinfo.input_components];
+      row_pointer[0] = &inbuf[cinfo.next_scanline * cinfo.image_width * cinfo.input_components];
       jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
     jpeg_finish_compress(&cinfo);
