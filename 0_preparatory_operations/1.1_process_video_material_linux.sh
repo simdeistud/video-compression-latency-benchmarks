@@ -28,22 +28,76 @@ ffmpeg -i ../1_video_material/video_material.y4m \
   -vf "scale=1280:720" \
   -pix_fmt yuv420p \
   -f yuv4mpegpipe ../1_video_material/video_material_hd.y4m
+  
+# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in JPEG format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
+  -frames:v 1 \
+  ../1_video_material/fram_ultrahd.jpg
 
-# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) copies of the material in RGB24 format
-ffmpeg \
-  -i ../1_video_material/video_material.y4m \
-  -vf "scale=3840:2160" \
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -frames:v 1 \
+  ../1_video_material/frame_fullhd.jpg
+
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -frames:v 1 \
+  ../1_video_material/frame_hd.jpg
+  
+# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in PNG format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
+  -frames:v 1 \
+  ../1_video_material/frame_ultrahd.png
+
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -frames:v 1 \
+  ../1_video_material/frame_fullhd.png
+
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -frames:v 1 \
+  ../1_video_material/frame_hd.png
+
+# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in TIFF format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
+  -frames:v 1 \
+  ../1_video_material/frame_ultrahd.tiff
+
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -frames:v 1 \
+  ../1_video_material/frame_fullhd.tiff
+
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -frames:v 1 \
+  ../1_video_material/frame_hd.tiff
+  
+  # Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in PPM format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
   -pix_fmt rgb24 \
-  -f rawvideo ../1_video_material/video_material_ultrahd.rgb
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_ultrahd.ppm
 
-ffmpeg -i ../1_video_material/video_material.y4m \
-  -vf "scale=1920:1080" \
-  -pix_fmt yuv420p \
-  -f rawvideo ../1_video_material/video_material_fullhd.rgb
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -pix_fmt rgb24 \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_fullhd.ppm
+  
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -pix_fmt rgb24 \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_hd.ppm
 
-ffmpeg -i ../1_video_material/video_material.y4m \
-  -vf "scale=1280:720" \
-  -pix_fmt yuv420p \
-  -f rawvideo ../1_video_material/video_material_hd.rgb
+# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in RGB24 format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
+  -pix_fmt rgb24 \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_ultrahd.rgb
+
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -pix_fmt rgb24 \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_fullhd.rgb
+
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -pix_fmt rgb24 \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_hd.rgb
 
 rm ../1_video_material/files.txt
