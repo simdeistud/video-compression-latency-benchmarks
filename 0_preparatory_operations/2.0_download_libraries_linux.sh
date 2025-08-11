@@ -17,9 +17,13 @@ rm ../2_libraries/libjpeg-turbo/src.zip
 cp -r ../2_libraries/libjpeg-turbo/libjpeg-turbo-3.1.1/* ../2_libraries/libjpeg-turbo/
 rm -r ../2_libraries/libjpeg-turbo/libjpeg-turbo-3.1.1
 
-# Download libjxl + jpegli version 0.11.1 (26-11-2024)
-mkdir ../2_libraries/jpegli-jpegli
-git clone --branch v0.11.1 --depth 1 --recursive --shallow-submodules https://github.com/libjxl/libjxl.git ../2_libraries/libjxl-jpegli
+# Download jpegli version 0.11.1 (26-11-2024)
+mkdir ../2_libraries/jpegli
+git clone --depth 1 --recursive --shallow-submodules https://github.com/google/jpegli.git ../2_libraries/jpegli
+
+# Download libjxl version 0.11.1 (26-11-2024)
+mkdir ../2_libraries/libjxl
+git clone --branch v0.11.1 --depth 1 --recursive --shallow-submodules https://github.com/libjxl/libjxl.git ../2_libraries/libjxl
 
 # Dowload gpujpeg version 0.27.7 (10-07-2025)
 mkdir ../2_libraries/gpujpeg

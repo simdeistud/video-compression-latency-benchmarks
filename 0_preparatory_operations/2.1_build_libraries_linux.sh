@@ -2,39 +2,42 @@
 
 # Build libjpeg
 cd ../2_libraries/libjpeg/
-./configure
+./configure --enable-shared --enable-static --prefix=$(pwd)/../_installdir/libjpeg --exec-prefix=$(pwd)/../_installdir/libjpeg
 cd ../../0_preparatory_operations
 make --directory=../2_libraries/libjpeg/ -j $(nproc)
 make --directory=../2_libraries/libjpeg/ test
 
 # Build libjpeg-turbo
-cmake -S ../2_libraries/libjpeg-turbo -B ../2_libraries/libjpeg-turbo/build -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
-cmake --build ../2_libraries/libjpeg-turbo/build --parallel
+cmake -S ../2_libraries/libjpeg-turbo -B ../2_libraries/libjpeg-turbo/build -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/libjpeg-turbo -DCMAKE_BUILD_TYPE="Release"
+cmake --build ../2_libraries/libjpeg-turbo/build --config Release --parallel
 
-# Build libjxl + jpegli
-cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF -S ../2_libraries/libjxl-jpegli/ -B ../2_libraries/libjxl-jpegli/build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ 
-cmake --build ../2_libraries/libjxl-jpegli/build --config Debug --parallel
+# Build jpegli
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -S ../2_libraries/jpegli/ -B ../2_libraries/jpegli/build -DJPEGXL_INSTALL_JPEGLI_LIBJPEG=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/jpegli
+cmake --build ../2_libraries/jpegli/build --config Release --parallel
+
+# Build libjxl
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -S ../2_libraries/libjxl/ -B ../2_libraries/libjxl/build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/libjxl
+cmake --build ../2_libraries/libjxl/build --config Release --parallel
 
 # Build gpujpeg
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CUDA_ARCHITECTURES=native -B ../2_libraries/gpujpeg/build -S ../2_libraries/gpujpeg -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
-cmake --build ../2_libraries/gpujpeg/build --config Debug --parallel
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=native -B ../2_libraries/gpujpeg/build -S ../2_libraries/gpujpeg -DHUFFMAN_GPU_CONST_TABLE=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/gpujpeg
+cmake --build ../2_libraries/gpujpeg/build --config Release --parallel
 
 # Build libwebp
-cmake -S ../2_libraries/libwebp -B ../2_libraries/libwebp/build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-cmake --build ../2_libraries/libwebp/build --config Debug --parallel
+cmake -S ../2_libraries/libwebp -B ../2_libraries/libwebp/build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/libwebp
+cmake --build ../2_libraries/libwebp/build --config Release --parallel
 
 # Build libavif
-cmake -DCMAKE_BUILD_TYPE=Debug -S ../2_libraries/libavif -B ../2_libraries/libavif/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AOM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_CODEC_DAV1D=LOCAL -DAVIF_CODEC_LIBGAV1=LOCAL -DAVIF_CODEC_RAV1E=LOCAL -DAVIF_CODEC_SVT=LOCAL -DAVIF_BUILD_APPS=ON 
-s
-cmake --build ../2_libraries/libavif/build --config Debug --parallel # RAM HUNGRY, REMOVE --parallel IF IT CRASHES
+cmake -DCMAKE_BUILD_TYPE=Release -S ../2_libraries/libavif -B ../2_libraries/libavif/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AOM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_CODEC_DAV1D=LOCAL -DAVIF_CODEC_LIBGAV1=LOCAL -DAVIF_CODEC_RAV1E=LOCAL -DAVIF_CODEC_SVT=LOCAL -DAVIF_BUILD_APPS=ON -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/libavif
+cmake --build ../2_libraries/libavif/build --config Release --parallel # RAM HUNGRY, REMOVE --parallel IF IT CRASHES
   
 # Build libavif for AV2 
-cmake -DCMAKE_BUILD_TYPE=Debug -S ../2_libraries/libavif-av2 -B ../2_libraries/libavif-av2/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AVM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_BUILD_APPS=ON 
-cmake --build ../2_libraries/libavif-av2/build --config Debug --parallel # RAM HUNGRY, REMOVE --parallel IF IT CRASHES
+cmake -DCMAKE_BUILD_TYPE=Release -S ../2_libraries/libavif-av2 -B ../2_libraries/libavif-av2/build -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DAVIF_CODEC_AVM=LOCAL -DAVIF_LIBYUV=LOCAL -DAVIF_LIBSHARPYUV=LOCAL -DAVIF_JPEG=LOCAL -DAVIF_ZLIBPNG=LOCAL -DAVIF_BUILD_APPS=ON -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/libavif-av2
+cmake --build ../2_libraries/libavif-av2/build --config Release --parallel # RAM HUNGRY, REMOVE --parallel IF IT CRASHES
 
 # Build libx264
 cd ../2_libraries/x264/
-./configure --enable-lto --enable-pic --enable-shared --enable-static --enable-debug # debug and lto are mutually exclusive, when deploying remove debug
+./configure --enable-lto --enable-pic --enable-shared --enable-static --prefix=$(pwd)/../_installdir/x264 --exec-prefix=$(pwd)/../_installdir/x264 # debug and lto are mutually exclusive, when deploying remove debug
 cd ../../0_preparatory_operations
 make --directory=../2_libraries/x264/ -j $(nproc)
 
@@ -47,7 +50,7 @@ cd ../2_libraries/vc2-reference/
 # fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
 # fix AS_NANO with AS_NANO([VC2REFERENCE_CVS=no], [VC2REFERENCE_CVS=yes])
 ./autogen.sh
-./configure --enable-shared --enable-static
+./configure --enable-shared --enable-static --prefix=$(pwd)/../_installdir/vc2-reference --exec-prefix=$(pwd)/../_installdir/vc2-reference
 cd ../../0_preparatory_operations
 make --directory=../2_libraries/vc2-reference/ -j $(nproc)
 
@@ -63,7 +66,7 @@ cd ../2_libraries/vc2-hq/encode
 # fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
 # fix AS_NANO with AS_NANO([VC2HQENCODE_CVS=no],[VC2HQENCODE_CVS=yes])
 ./autogen.sh
-./configure --enable-shared --enable-static
+./configure --enable-shared --enable-static --prefix=$(pwd)/../../_installdir/vc2-hq/encode --exec-prefix=$(pwd)/../../_installdir/vc2-hq/encode
 cd ../decode
 # configure.ac needs to be modified in the following way:
 # move AX_CXX_COMPILE_STDCXX_11 below AC_PROG_CXX 
@@ -71,7 +74,7 @@ cd ../decode
 # fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
 # fix AS_NANO with AS_NANO([VC2HQDECODE_CVS=no],[VC2HQDECODE_CVS=yes])
 ./autogen.sh
-./configure --enable-shared --enable-static
+./configure --enable-shared --enable-static --prefix=$(pwd)/../../_installdir/vc2-hq/decode --exec-prefix=$(pwd)/../../_installdir/vc2-hq/decode
 cd ../../../0_preparatory_operations
 make --directory=../2_libraries/vc2-hq/encode/ -j $(nproc)
 make --directory=../2_libraries/vc2-hq/decode/ -j $(nproc)
