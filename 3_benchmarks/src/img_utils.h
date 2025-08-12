@@ -13,7 +13,7 @@
  * Returns:
  *   0 on success, non-zero on failure
  */
-int img_load(const char path[], char** img, size_t* img_size) {
+int img_load(const char path[], unsigned char** img, size_t* img_size) {
     FILE* file = fopen(path, "rb");
     if (!file) {
         return 1; // Failed to open file
@@ -23,7 +23,7 @@ int img_load(const char path[], char** img, size_t* img_size) {
     *img_size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    *img = (char*)malloc(*img_size);
+    *img = (unsigned char*) malloc(*img_size);
     if (!*img) {
         fclose(file);
         return 2; // Memory allocation failed
@@ -48,7 +48,7 @@ int img_load(const char path[], char** img, size_t* img_size) {
  * Returns:
  *   0 on success, non-zero on failure
  */
-int img_save(char path[], char** img, size_t img_size) {
+int img_save(char path[], unsigned char** img, size_t img_size) {
     FILE* file = fopen(path, "wb");
     if (!file) {
         return 1; // Failed to open file
@@ -70,7 +70,7 @@ int img_save(char path[], char** img, size_t img_size) {
  * Returns:
  *   0 on success, non-zero on failure
  */
-int img_destroy(char* img) {
+int img_destroy(unsigned char* img) {
     if (!img) {
         return 1; // NULL pointer
     }
