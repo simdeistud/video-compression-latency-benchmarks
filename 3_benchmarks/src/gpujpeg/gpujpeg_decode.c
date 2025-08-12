@@ -5,25 +5,6 @@
 #include "libgpujpeg/gpujpeg.h"
 #include "../img_utils.h"
 
-int decoding_parameters_setup(struct gpujpeg_decoder** decoder, struct gpujpeg_parameters* param, struct gpujpeg_image_parameters* param_image, struct gpujpeg_decoder_output* decoder_output)
-{
-  //gpujpeg_decoder_init(*decoder, param, param_image);
-  gpujpeg_decoder_set_output_format(*decoder, GPUJPEG_RGB,
-                GPUJPEG_444_U8_P012);
-  gpujpeg_decoder_output_set_default(decoder_output);
-}
-
-int decoder_destroy(struct gpujpeg_decoder* decoder)
-{
-    gpujpeg_decoder_destroy(decoder);
-    return 0;
-}
-
-int decode_image_with_gpujpeg(const char* input_filename, const char* output_filename, int iterations)
-{
-    
-}
-
 int main(int argc, char* argv[])
 {  
   /* Input image related data */
@@ -62,7 +43,7 @@ int main(int argc, char* argv[])
     return 1;
   }
   
-  if(img_load(argv[1], (char**)inbuf, &inbuf_size)){
+  if(img_load(argv[1], (char**)&inbuf, &inbuf_size)){
     fprintf(stderr, "Error: Failed to load image from file: %s\n", argv[1]);
     return 1;
   }

@@ -13,7 +13,7 @@
  * Returns:
  *   0 on success, non-zero on failure
  */
-int img_load(char path[], char** img, size_t* img_size) {
+int img_load(const char path[], char** img, size_t* img_size) {
     FILE* file = fopen(path, "rb");
     if (!file) {
         return 1; // Failed to open file

@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   /* Parsing DCT algorithm argv[3] */
   dct = atoi(argv[3]);
 
-  if(img_load(argv[1], (char**)inbuf, &inbuf_size)){
+  if(img_load(argv[1], (char**)&inbuf, &inbuf_size)){
     fprintf(stderr, "Error: Failed to load image from file: %s\n", argv[1]);
     return 1;
   }

@@ -1,0 +1,4 @@
+/home/simonedeiana/Documents/video-compression-latency-benchmarks/3_benchmarks/src/gpujpeg/build/CMakeFiles/gpujpeg_encode.dir
+/home/simonedeiana/Documents/video-compression-latency-benchmarks/3_benchmarks/src/gpujpeg/build/CMakeFiles/gpujpeg_decode.dir
+/home/simonedeiana/Documents/video-compression-latency-benchmarks/3_benchmarks/src/gpujpeg/build/CMakeFiles/edit_cache.dir
+/home/simonedeiana/Documents/video-compression-latency-benchmarks/3_benchmarks/src/gpujpeg/build/CMakeFiles/rebuild_cache.dir
