@@ -32,7 +32,7 @@ ffmpeg -i ../1_video_material/video_material.y4m \
 # Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in JPEG format
 ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
   -frames:v 1 \
-  ../1_video_material/fram_ultrahd.jpg
+  ../1_video_material/frame_ultrahd.jpg
 
 ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
   -frames:v 1 \
