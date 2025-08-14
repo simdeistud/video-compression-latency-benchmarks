@@ -62,7 +62,8 @@ int main(int argc, char **argv) {
      * decoding random images, for which including these preparatory steps
      * in the benchmark would be reasonable!
      */
-    jpeg_mem_src(&cinfo, inbuf, inbuf_size); /* Image source has to be set before every run even though it's the same pointer... */
+    jpeg_mem_src(&cinfo, inbuf, inbuf_size);
+    /* Image source has to be set before every run even though it's the same pointer... */
     if (jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK) {
         fprintf(stderr, "Error: Failed to read JPEG header from file: %s\n", argv[1]);
         jpeg_destroy_decompress(&cinfo);
@@ -70,13 +71,15 @@ int main(int argc, char **argv) {
         return 1;
     } /* Reading the JPEG header is mandatory before starting the decompression */
     jpeg_start_decompress(&cinfo);
-    outbuf_size = cinfo.output_width * cinfo.output_height * cinfo.output_components; /* These cinfo fields are filled only AFTER decompression has started */
+    outbuf_size = cinfo.output_width * cinfo.output_height * cinfo.output_components;
+    /* These cinfo fields are filled only AFTER decompression has started */
     outbuf = (JSAMPLE *) malloc(outbuf_size);
     while (cinfo.output_scanline < cinfo.output_height) {
         row_pointer[0] = outbuf + (cinfo.output_scanline * cinfo.output_width * cinfo.output_components);
         jpeg_read_scanlines(&cinfo, row_pointer, 1);
     }
     jpeg_finish_decompress(&cinfo);
+    img_save("out.rgb", &outbuf, outbuf_size);
 
     start_time = clock();
     /* Decompression benchmark begins here, parameters and input image

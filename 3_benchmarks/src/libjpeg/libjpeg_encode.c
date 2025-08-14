@@ -128,6 +128,15 @@ int main(int argc, char **argv) {
     cinfo.dct_method = dct; /* Default or fast DCT, chosen by the user */
     cinfo.restart_interval = restart_interval; /* Presence of restart intervals, chosen by the user */
 
+    /* Test run to see if everything works */
+    jpeg_start_compress(&cinfo, TRUE);
+    while (cinfo.next_scanline < cinfo.image_height) {
+        row_pointer[0] = &inbuf[cinfo.next_scanline * cinfo.image_width * cinfo.input_components];
+        jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+    jpeg_finish_compress(&cinfo);
+    img_save("out.jpeg", &outbuf, outbuf_size);
+
     start_time = clock();
     /* Compression begins here, parameters and input image
        cannot be changed until it has finished             */
