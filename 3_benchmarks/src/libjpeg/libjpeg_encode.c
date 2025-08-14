@@ -74,15 +74,15 @@ int main(int argc, char **argv) {
     switch (atoi(argv[4])) {
         case 444: v_sampling = 1;
             h_sampling = 1;
-            colorspace = JCS_RGB;
+            colorspace = JCS_YCbCr;
             break;
-        case 422: v_sampling = 2;
-            h_sampling = 1;
-            colorspace = JCS_RGB;
+        case 422: v_sampling = 1;
+            h_sampling = 2;
+            colorspace = JCS_YCbCr;
             break;
         case 420: v_sampling = 2;
             h_sampling = 2;
-            colorspace = JCS_RGB;
+            colorspace = JCS_YCbCr;
             break;
         default: v_sampling = 1;
             h_sampling = 1;
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     /* Setting up the compression parameters */
     jpeg_set_defaults(&cinfo);
     jpeg_set_quality(&cinfo, q, TRUE); /* Compression quality, chosen by the user */
-    jpeg_set_colorspace(&cinfo, colorspace); /* Output colorspace, chosen by the user  */
+    jpeg_set_colorspace(&cinfo, colorspace); /* Output colorspace, chosen by the user */
     cinfo.comp_info[0].v_samp_factor = v_sampling; /* Chroma subsampling options, chosen by the user */
     cinfo.comp_info[0].h_samp_factor = h_sampling;
     cinfo.arith_code = arith; /* Arithmetic or Huffman encoding, chosen by the user */
