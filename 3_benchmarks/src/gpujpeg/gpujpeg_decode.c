@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     return 1;
   }
   
-  if(img_load(argv[1], (char**)&inbuf, &inbuf_size)){
+  if(img_load(argv[1], &inbuf, &inbuf_size)){
     fprintf(stderr, "Error: Failed to load image from file: %s\n", argv[1]);
     return 1;
   }
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     return 1;
   }    
   
-  gpujpeg_decoder_set_output_format(decoder, GPUJPEG_RGB, GPUJPEG_444_U8_P012);
+  //gpujpeg_decoder_set_output_format(decoder, GPUJPEG_RGB, GPUJPEG_444_U8_P012); /* Autodetect should do its thing */
   gpujpeg_decoder_output_set_default(&decoder_output);
     
   if (gpujpeg_decoder_decode(decoder, inbuf, inbuf_size, &decoder_output)){
