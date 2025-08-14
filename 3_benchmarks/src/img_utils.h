@@ -1,6 +1,10 @@
 #ifndef IMG_UTILS_H
 #define IMG_UTILS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -77,5 +81,9 @@ int img_destroy(unsigned char* img) {
     free(img);
     return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IMG_UTILS_H
