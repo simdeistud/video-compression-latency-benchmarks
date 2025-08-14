@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
         printf("  │ Subsampling       : 444 | 422 | 420 | 0 (grayscale)        │\n");
         printf("  │ Quality           : 0 ... 100                              │\n");
         printf("  │ Interleaved       : 0 = NO | 1 = YES                       │\n");
-        printf("  │ Restart Interval  : 0 ... n (HD/FullHD = 8, UltraHD = 32)  │\n");
+        printf("  │ Restart Interval  : 0 = NO | 1 = YES                       │\n");
         printf("  └────────────────────────────────────────────────────────────┘\n");
         return 1;
     }
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     /* Parsing restart interval argv[7] */
     restart_interval = atoi(argv[7]);
 
-    if (img_load(argv[1], (char **) &inbuf, &inbuf_size)) {
+    if (img_load(argv[1], &inbuf, &inbuf_size)) {
         fprintf(stderr, "Error: Failed to load image from file: %s\n", argv[1]);
         return 1;
     }
@@ -114,15 +114,7 @@ int main(int argc, char **argv) {
     param_image.width = img_w;
     param_image.height = img_h;
     param_image.color_space = GPUJPEG_RGB;
-    switch (atoi(argv[4])) {
-        case 444: param_image.pixel_format = GPUJPEG_444_U8_P012;
-            break;
-        case 422: param_image.pixel_format = GPUJPEG_422_U8_P0P1P2;
-            break;
-        case 420: param_image.pixel_format = GPUJPEG_420_U8_P0P1P2;
-            break;
-        default: param_image.pixel_format = GPUJPEG_U8;
-    }
+    param_image.pixel_format = GPUJPEG_444_U8_P012;
     gpujpeg_parameters_chroma_subsampling(&param, subsampling);
     gpujpeg_encoder_input_set_image(&encoder_input, inbuf);
 
@@ -131,12 +123,14 @@ int main(int argc, char **argv) {
     param.quality = q;
     param.interleaved = interleaved;
     param.segment_info = interleaved;
-    param.restart_interval = restart_interval;
+    param.restart_interval = restart_interval ? (img_w != 3840 ? 8 : 32) : 0;
 
+    /* Test run to see if everything works */
     if (gpujpeg_encoder_encode(encoder, &param, &param_image, &encoder_input, &outbuf, &outbuf_size)) {
         perror("Failed to encode image");
         return 1;
     }
+    img_save("out.jpeg", &outbuf, outbuf_size);
 
     start_time = clock();
     /* Compression begins here, parameters and input image

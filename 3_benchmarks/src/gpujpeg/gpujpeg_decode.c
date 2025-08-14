@@ -63,11 +63,13 @@ int main(int argc, char* argv[])
   
   //gpujpeg_decoder_set_output_format(decoder, GPUJPEG_RGB, GPUJPEG_444_U8_P012); /* Autodetect should do its thing */
   gpujpeg_decoder_output_set_default(&decoder_output);
-    
+
+  /* Test run to see if everything works */
   if (gpujpeg_decoder_decode(decoder, inbuf, inbuf_size, &decoder_output)){
     perror("Failed to decode image");
     return 1;
   }
+  img_save("out.rgb", &outbuf, outbuf_size);
 
   start_time = clock();
   /* Decompression begins here, parameters and input image
