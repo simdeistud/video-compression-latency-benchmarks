@@ -99,5 +99,71 @@ ffmpeg -i ../1_video_material/video_material_hd.y4m \
   -pix_fmt rgb24 \
   -frames:v 1 \
   -f rawvideo ../1_video_material/frame_hd.rgb
+  
+# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in YUV444p planar format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
+  -pix_fmt yuv444p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_ultrahd_444.yuv
+
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -pix_fmt yuv444p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_fullhd_444.yuv
+
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -pix_fmt yuv444p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_hd_444.yuv
+
+# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in YUV422p planar format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
+  -pix_fmt yuv422p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_ultrahd_422.yuv
+
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -pix_fmt yuv422p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_fullhd_422.yuv
+
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -pix_fmt yuv422p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_hd_422.yuv
+
+# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in YUV420p planar format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
+  -pix_fmt yuv420p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_ultrahd_420.yuv
+
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -pix_fmt yuv420p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_fullhd_420.yuv
+
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -pix_fmt yuv420p \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_hd_420.yuv
+
+# Creates ultrahd (3840x2160), fullhd (1920x1080), and hd (1280x720) frames of the material in NV12 format
+ffmpeg -i ../1_video_material/video_material_ultrahd.y4m \
+  -pix_fmt nv12 \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_ultrahd_nv12.yuv
+
+ffmpeg -i ../1_video_material/video_material_fullhd.y4m \
+  -pix_fmt nv12 \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_fullhd_nv12.yuv
+
+ffmpeg -i ../1_video_material/video_material_hd.y4m \
+  -pix_fmt nv12 \
+  -frames:v 1 \
+  -f rawvideo ../1_video_material/frame_hd_nv12.yuv
+
+
 
 rm ../1_video_material/files.txt
