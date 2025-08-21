@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.10)
+project(h264nvenc_benchmarks C)
+
+add_executable(h264nvenc_encode_host h264nvenc_encode_host.c)
+target_link_libraries(h264nvenc_encode_host avcodec avutil)
+
+add_executable(h264nvenc_encode_device h264nvenc_encode_device.c)
+target_link_libraries(h264nvenc_encode_device avcodec avutil)
+
