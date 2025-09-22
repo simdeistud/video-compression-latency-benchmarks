@@ -1,0 +1,54 @@
+LIBJPEG:
+	encoder : DONE
+	decoder : DONE
+	benchmark : TODO
+
+LIBJPEG-TURBO:
+        encoder : DONE  
+        decoder : DONE
+        benchmark : TODO
+
+JPEGLI:
+        encoder : DONE  
+        decoder : DONE
+        benchmark : TODO
+
+GPUJPEG:
+        encoder : DONE
+        decoder : DONE
+        benchmark : TODO
+
+
+NVJPEG:
+
+LIBX264:
+
+H264_NVENC:
+
+H264_QSV:
+
+LIBVPX-VP8:
+
+LIBVPX-VP9:
+
+LIBSVT-AV1:
+
+LIBAOM-AV1:
+
+LIBRAV1E:
+
+LIBDAV1D:
+
+AV1_NVENC:
+
+AV1_QSV:
+
+LIBAVIF-WEBP:
+
+LIBAVIF-AV1-SVT:
+
+LIBAVIF-AV1-RAV1E:
+
+LIBAVIF-AV1-LIBAOM:
+
+LIBAVIF-AV1-LIBGAV:
