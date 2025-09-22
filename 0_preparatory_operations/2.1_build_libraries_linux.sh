@@ -44,11 +44,6 @@ make --directory=../2_libraries/x264/ -j $(nproc)
 # Build VC-2 reference
 patch ../2_libraries/vc2-reference/configure.ac ./patches/vc2-reference_configure.ac_patch
 cd ../2_libraries/vc2-reference/
-# configure.ac needs to be modified in the following way:
-# add AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory]) below AC_PROG_CXX 
-# add AC_PROG_CC below AC_PROG_CXX 
-# fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
-# fix AS_NANO with AS_NANO([VC2REFERENCE_CVS=no], [VC2REFERENCE_CVS=yes])
 ./autogen.sh
 ./configure --enable-shared --enable-static --prefix=$(pwd)/../_installdir/vc2-reference --exec-prefix=$(pwd)/../_installdir/vc2-reference
 cd ../../0_preparatory_operations
@@ -60,19 +55,9 @@ echo sed '"s/$3/$4/g" "$1" > "$2"' >> ../2_libraries/vc2-hq/encode/duplicate-tra
 patch ../2_libraries/vc2-hq/encode/configure.ac ./patches/vc2-hq-encode_configure.ac_patch
 patch ../2_libraries/vc2-hq/decode/configure.ac ./patches/vc2-hq-decode_configure.ac_patch
 cd ../2_libraries/vc2-hq/encode
-# configure.ac needs to be modified in the following way:
-# move AX_CXX_COMPILE_STDCXX_11 below AC_PROG_CXX 
-# add AC_PROG_CC below AC_PROG_CXX 
-# fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
-# fix AS_NANO with AS_NANO([VC2HQENCODE_CVS=no],[VC2HQENCODE_CVS=yes])
 ./autogen.sh
 ./configure --enable-shared --enable-static --prefix=$(pwd)/../../_installdir/vc2-hq/encode --exec-prefix=$(pwd)/../../_installdir/vc2-hq/encode
 cd ../decode
-# configure.ac needs to be modified in the following way:
-# move AX_CXX_COMPILE_STDCXX_11 below AC_PROG_CXX 
-# add AC_PROG_CC below AC_PROG_CXX 
-# fix VC2REFERENCE_LIBS with VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
-# fix AS_NANO with AS_NANO([VC2HQDECODE_CVS=no],[VC2HQDECODE_CVS=yes])
 ./autogen.sh
 ./configure --enable-shared --enable-static --prefix=$(pwd)/../../_installdir/vc2-hq/decode --exec-prefix=$(pwd)/../../_installdir/vc2-hq/decode
 cd ../../../0_preparatory_operations
