@@ -1,19 +1,38 @@
-1c1
-< AC_PREREQ([2.68])
----
-> AC_PREREQ([2.71])
-15c15
-< fi;
----
-> fi
-17c17
-< AS_NANO(VC2REFERENCE_CVS=no,VC2REFERENCE_CVS=yes)
----
-> AS_NANO([VC2REFERENCE_CVS=no], [VC2REFERENCE_CVS=yes])
-32a33,34
-> AX_CXX_COMPILE_STDCXX_11
-> AC_PROG_CC
-95c97
-< VC2REFERENCE_LIBS="\$(top_builddir)/src/Libaray/libVC2-$VC2REFERENCE_MAJORMINOR.la"
----
-> VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
+--- configure.ac	2025-09-22 11:56:12.097802754 +0200
++++ /home/simonedeiana/Documents/video-compression-latency-benchmarks/2_libraries/vc2-reference/configure.ac	2025-08-08 18:46:09.125048492 +0200
+@@ -1,4 +1,4 @@
+-AC_PREREQ([2.68])
++AC_PREREQ([2.71])
+ AC_INIT([VC2REFERENCE],[0.1.0.2])
+ 
+ AC_CANONICAL_TARGET
+@@ -12,9 +12,9 @@
+ esac
+ if test "$TARGET" != "x86_64" ; then
+    AC_MSG_ERROR([Only x86_64 architecture is supported])
+-fi;
++fi
+ 
+-AS_NANO(VC2REFERENCE_CVS=no,VC2REFERENCE_CVS=yes)
++AS_NANO([VC2REFERENCE_CVS=no], [VC2REFERENCE_CVS=yes])
+ 
+ AM_INIT_AUTOMAKE([1.11 silent-rules subdir-objects])
+ AM_SILENT_RULES([yes])
+@@ -30,6 +30,8 @@
+ LT_INIT(disable-static win32-dll)
+ 
+ AC_PROG_CXX
++AX_CXX_COMPILE_STDCXX_11
++AC_PROG_CC
+ AM_PROG_CC_C_O
+ 
+ AC_CONFIG_SRCDIR([src/Library/Utils.h])
+@@ -92,7 +94,7 @@
+ fi
+ AC_SUBST(VC2REFERENCE_LDFLAGS)
+ 
+-VC2REFERENCE_LIBS="\$(top_builddir)/src/Libaray/libVC2-$VC2REFERENCE_MAJORMINOR.la"
++VC2REFERENCE_LIBS="\$(top_builddir)/src/Library/libVC2-$VC2REFERENCE_MAJORMINOR.la"
+ AC_SUBST(VC2REFERENCE_LIBS)
+ 
+ AC_SUBST(VC2REFERENCE_PKG_DEPS)
