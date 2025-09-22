@@ -1,10 +1,29 @@
-17c17
-< AS_NANO(VC2HQDECODE_CVS=no,VC2HQDECODE_CVS=yes)
----
-> AS_NANO([VC2HQDECODE_CVS=no],[VC2HQDECODE_CVS=yes])
-40a41,42
-> AX_CXX_COMPILE_STDCXX_11
-> AC_PROG_CC
-71,72d72
-< 
-< AX_CXX_COMPILE_STDCXX_11
+--- configure.ac	2025-09-22 11:52:39.857498562 +0200
++++ /home/simonedeiana/Documents/video-compression-latency-benchmarks/2_libraries/vc2-hq/decode/configure.ac	2025-08-08 18:46:23.725467690 +0200
+@@ -14,7 +14,7 @@
+    AC_MSG_ERROR([Only x86_64 architecture is supported])
+ fi;
+ 
+-AS_NANO(VC2HQDECODE_CVS=no,VC2HQDECODE_CVS=yes)
++AS_NANO([VC2HQDECODE_CVS=no],[VC2HQDECODE_CVS=yes])
+ 
+ AM_INIT_AUTOMAKE([1.11 silent-rules subdir-objects])
+ AM_SILENT_RULES([yes])
+@@ -38,6 +38,8 @@
+ LT_INIT(disable-static win32-dll)
+ 
+ AC_PROG_CXX
++AX_CXX_COMPILE_STDCXX_11
++AC_PROG_CC
+ AM_PROG_CC_C_O
+ 
+ AC_CXX_HAVE_SSTREAM
+@@ -69,8 +71,6 @@
+      VC2HQDECODE_LDFLAGS=""
+ fi
+ 
+-AX_CXX_COMPILE_STDCXX_11
+-
+ # pthreads is required for mutex
+ #
+ ######### CHECK!

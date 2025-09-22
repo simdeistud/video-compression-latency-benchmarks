@@ -1,17 +1,50 @@
-15,17c15
-< fi;
-< 
-< AX_CXX_COMPILE_STDCXX_11
----
-> fi
-19c17
-< AS_NANO(VC2HQENCODE_CVS=no,VC2HQENCODE_CVS=yes)
----
-> AS_NANO([VC2HQENCODE_CVS=no],[VC2HQENCODE_CVS=yes])
-44a43,44
-> AX_CXX_COMPILE_STDCXX_11
-> AC_PROG_CC
-80c80
-<    if test "x${HAVE_BOOST}" == xyes ; then
----
->    if test "x${HAVE_BOOST}" = xyes ; then
+--- configure.ac	2025-09-22 11:48:34.701450175 +0200
++++ /home/simonedeiana/Documents/video-compression-latency-benchmarks/2_libraries/vc2-hq/encode/configure.ac	2025-09-22 11:46:25.628104903 +0200
+@@ -12,11 +12,9 @@
+ esac
+ if test "$TARGET" != "x86_64" ; then
+    AC_MSG_ERROR([Only x86_64 architecture is supported])
+-fi;
+-
+-AX_CXX_COMPILE_STDCXX_11
++fi
+ 
+-AS_NANO(VC2HQENCODE_CVS=no,VC2HQENCODE_CVS=yes)
++AS_NANO([VC2HQENCODE_CVS=no],[VC2HQENCODE_CVS=yes])
+ 
+ AM_INIT_AUTOMAKE([1.11 silent-rules subdir-objects])
+ AM_SILENT_RULES([yes])
+@@ -42,6 +40,8 @@
+ LT_INIT(disable-static win32-dll)
+ 
+ AC_PROG_CXX
++AX_CXX_COMPILE_STDCXX_11
++AC_PROG_CC
+ AM_PROG_CC_C_O
+ 
+ AC_CXX_HAVE_SSTREAM
+@@ -62,13 +62,13 @@
+ 					   [default=$debug_default]],, enable_debug=$debug_default)
+ if test "x$enable_debug" = "xyes"; then
+ 		 VC2HQENCODE_CFLAGS="$VC2HQENCODE_CFLAGS -g -Og -DDEBUG"
+-		 CXXFLAGS="$CXXFLAGS -O0"
++		 CXXFLAGS="$CXXFLAGS -std=c++11 -O0"
+      VC2HQENCODE_LDFLAGS="$VC2HQENCODE_LDFLAGS -pg"
+ AC_MSG_RESULT(yes)
+ else
+ AC_MSG_RESULT(no)
+ 		 VC2HQENCODE_CFLAGS="$VC2HQENCODE_CFLAGS -g -O3 -funroll-loops"
+-		 CXXFLAGS="$CXXFLAGS -g -O3 -funroll-loops -Wall"
++		 CXXFLAGS="$CXXFLAGS -std=c++11 -g -O3 -funroll-loops -Wall"
+ fi
+ 
+ AC_ARG_WITH([boost],
+@@ -77,7 +77,7 @@
+    LIBBOOST_VER="1.49.0"
+    AX_BOOST_BASE($LIBBOOST_VER, HAVE_BOOST=yes, HAVE_BOOST=no)
+ 
+-   if test "x${HAVE_BOOST}" == xyes ; then
++   if test "x${HAVE_BOOST}" = "xyes" ; then
+       AX_BOOST_THREAD
+       AX_BOOST_SYSTEM
+ 
