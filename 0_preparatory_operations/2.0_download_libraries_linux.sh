@@ -62,3 +62,7 @@ git clone https://github.com/bbc/vc2hqdecode.git ../2_libraries/vc2-hq/decode
 # Download VC-2 reference
 git clone https://github.com/bbc/vc2-reference.git ../2_libraries/vc2-reference
 cp ../2_libraries/vc2-hq/encode/m4/ax_cxx_compile_stdcxx_11.m4 ../2_libraries/vc2-reference/m4/ax_cxx_compile_stdcxx_11.m4
+
+# Download pyrowave git
+git clone https://github.com/Themaister/pyrowave.git ../2_libraries/pyrowave
+git clone --depth 1 --recursive --shallow-submodules https://github.com/Themaister/Granite ../2_libraries/pyrowave/Granite

@@ -63,3 +63,7 @@ cd ../decode
 cd ../../../0_preparatory_operations
 make --directory=../2_libraries/vc2-hq/encode/ -j $(nproc)
 make --directory=../2_libraries/vc2-hq/decode/ -j $(nproc)
+
+# Build pyrowave
+cmake -S ../2_libraries/pyrowave -B ../2_libraries/pyrowave/build
+cmake --build ../2_libraries/pyrowave/build --parallel
