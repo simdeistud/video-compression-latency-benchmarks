@@ -87,7 +87,7 @@ have_encoder mjpeg && run mjpeg \
 
 have_encoder libx264 && run libx264 \
   "${COMMON_IN[@]}" -c:v libx264 -preset ultrafast -tune zerolatency \
-  -g 1 -bf 0 -sc_threshold 0 \
+  -g 1 -bf 0 -sc_threshold 0 -qp 22 \
   "${OUT_PREFIX}libx264.mp4"
 
 # VP8 (libvpx) all-intra realtime
