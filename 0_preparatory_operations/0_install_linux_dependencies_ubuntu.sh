@@ -1,0 +1,16 @@
+sudo apt-get install -y git build-essential cmake automake pkg-config ffmpeg yasm nasm meson ninja-build rustup libbrotli-dev libgif-dev libjpeg-dev libopenexr-dev libpng-dev libwebp-dev clang libglew-dev freeglut3-dev libglfw3-dev libglfw3 libtool libboost-all-dev
+
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt-get update
+sudo apt-get install -y cuda-toolkit nvidia-cuda-toolkit nvidia-gds
+
+rustup update beta
+
+#git clone https://github.com/intel/libvpl
+#cd libvpl
+#sudo script/bootstrap
+#cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr/local/intelvpl
+#cmake --build _build
+#cmake --install _build
+
