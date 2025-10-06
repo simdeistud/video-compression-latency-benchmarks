@@ -1,10 +1,13 @@
-sudo apt install -y git build-essential cmake automake pkg-config ffmpeg yasm nasm meson ninja-build rustup libbrotli-dev libgif-dev libjpeg-dev libopenexr-dev libpng-dev libwebp-dev clang libglew-dev freeglut3-dev libglfw3-dev libglfw3 libtool libboost-all-dev
+# Libraries and programs needed
+git build-essential cmake automake pkg-config ffmpeg yasm nasm meson ninja-build rustup libbrotli-dev libgif-dev libjpeg-dev libopenexr-dev libpng-dev libwebp-dev clang libshaderc-dev libglew-dev freeglut3-dev libglfw3-dev libglfw3 libtool libboost-all-dev
 
+# Install CUDA sdk
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
 sudo dpkg -i cuda-keyring_1.1-1_all.deb
 sudo apt update
 sudo apt install -y cuda-toolkit nvidia-cuda-toolkit nvidia-gds
 
+# Use latest version of rust
 rustup update beta
 
 git clone https://github.com/intel/libvpl
@@ -13,4 +16,9 @@ sudo script/bootstrap
 cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr/local/intelvpl
 cmake --build _build
 cmake --install _build
+
+# Install Vulkan headers through the LunarSDK
+https://vulkan.lunarg.com/sdk/home#linux
+run the setup-env
+run vulkansd --maxjobs
 
