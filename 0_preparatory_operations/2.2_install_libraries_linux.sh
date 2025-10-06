@@ -47,3 +47,9 @@ mkdir -p ../2_libraries/_installdir/vc2-hq/encode
 mkdir -p ../2_libraries/_installdir/vc2-hq/decode
 make --directory=../2_libraries/vc2-hq/encode install
 make --directory=../2_libraries/vc2-hq/decode install
+
+# Install VC-2 Vulkan
+mkdir -p ../2_libraries/_installdir/vc2-vulkan/enc
+mkdir -p ../2_libraries/_installdir/vc2-vulkan/dec
+make --directory=../2_libraries/vc2-vulkan/enc install
+make --directory=../2_libraries/vc2-vulkan/dec install

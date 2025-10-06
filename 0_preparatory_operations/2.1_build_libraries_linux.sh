@@ -67,3 +67,14 @@ make --directory=../2_libraries/vc2-hq/decode/ -j $(nproc)
 # Build pyrowave
 cmake -S ../2_libraries/pyrowave -B ../2_libraries/pyrowave/build
 cmake --build ../2_libraries/pyrowave/build --parallel
+
+# Build vc2-vulkan
+cd ../2_libraries/vc2-vulkan/enc
+./configure --enable-pic --prefix=$(pwd)/../../_installdir/vc2-vulkan/enc --enable-vulkan --enable-libshaderc --pkg-config-flags="--static" --extra-libs="-lpthread -lm" --ld="g++" --bindir=$(pwd)/../../_installdir/vc2-vulkan/enc/bin
+cd ../../../0_preparatory_operations
+make --directory=../2_libraries/vc2-vulkan/enc/ -j $(nproc)
+
+cd ../2_libraries/vc2-vulkan/dec
+./configure --enable-pic --prefix=$(pwd)/../../_installdir/vc2-vulkan/dec --enable-vulkan --enable-libshaderc --pkg-config-flags="--static" --extra-libs="-lpthread -lm" --ld="g++" --bindir=$(pwd)/../../_installdir/vc2-vulkan/dec/bin
+cd ../../../0_preparatory_operations
+make --directory=../2_libraries/vc2-vulkan/dec/ -j $(nproc)
