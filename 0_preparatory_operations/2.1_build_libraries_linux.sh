@@ -78,3 +78,7 @@ cd ../2_libraries/vc2-vulkan/dec
 ./configure --enable-pic --prefix=$(pwd)/../../_installdir/vc2-vulkan/dec --enable-vulkan --enable-libshaderc --pkg-config-flags="--static" --extra-libs="-lpthread -lm" --ld="g++" --bindir=$(pwd)/../../_installdir/vc2-vulkan/dec/bin
 cd ../../../0_preparatory_operations
 make --directory=../2_libraries/vc2-vulkan/dec/ -j $(nproc)
+
+# Build libvmaf
+meson setup ../2_libraries/libvmaf/libvmaf ../2_libraries/libvmaf/libvmaf/build --buildtype release --default-library static --prefix $(pwd)/../2_libraries/_installdir/libvmaf
+meson compile -C ../2_libraries/libvmaf/libvmaf/build

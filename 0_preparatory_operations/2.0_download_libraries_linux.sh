@@ -71,3 +71,8 @@ git clone --depth 1 --recursive --shallow-submodules https://github.com/Themaist
 git clone --recursive --shallow-submodules -b vc2enc-final https://github.com/raphaelthegreat/FFmpeg.git ../2_libraries/vc2-vulkan/enc
 # Download Ffmpeg with vc-2 vulkan decoder
 git clone --recursive --shallow-submodules https://github.com/pmozil/FFmpeg.git ../2_libraries/vc2-vulkan/dec
+
+# Download Netflix's VMAF SDK library
+git clone https://github.com/Netflix/vmaf.git ../2_libraries/libvmaf
+
+

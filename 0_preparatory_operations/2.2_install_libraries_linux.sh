@@ -53,3 +53,6 @@ mkdir -p ../2_libraries/_installdir/vc2-vulkan/enc
 mkdir -p ../2_libraries/_installdir/vc2-vulkan/dec
 make --directory=../2_libraries/vc2-vulkan/enc install
 make --directory=../2_libraries/vc2-vulkan/dec install
+
+# Install libvmaf
+meson install -C ../2_libraries/libvmaf/libvmaf/build
