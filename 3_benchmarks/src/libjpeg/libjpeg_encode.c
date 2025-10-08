@@ -10,17 +10,17 @@
 void print_syntax()
 {
     printf("\nProgram Input Syntax:\n\n");
-    printf("  ┌────────────────────────────────────────┐\n");
-    printf("  │ -w    <width [px]>                     │\n");
-    printf("  │ -h    <height [px]>                    │\n");
-    printf("  │ -s    <subsampling [444|422|420]>      │\n");
-    printf("  │ -q    <quality [10...100]>             │\n");
-    printf("  │ -d  <DCT method [int|fast|float]>      │\n");
-    printf("  │ -r    <restart intervals [0...n]>      │\n");
-    printf("  │ -i    <iterations [1...n]>             │\n");
-    printf("  │ -b    <benchmark mode>                 │\n");
-    printf("  │ -o    <output mode [FILEPATH|-]>       │\n");
-    printf("  └────────────────────────────────────────┘\n");
+    printf("  ┌──────────────────────────────────────┐\n");
+    printf("  │ -w  <width [px]>                     │\n");
+    printf("  │ -h  <height [px]>                    │\n");
+    printf("  │ -s  <subsampling [444|422|420]>      │\n");
+    printf("  │ -q  <quality [10...100]>             │\n");
+    printf("  │ -d  <DCT method [int|fast|float]>    │\n");
+    printf("  │ -r  <restart intervals [0...n]>      │\n");
+    printf("  │ -i  <iterations [1...n]>             │\n");
+    printf("  │ -b  <benchmark mode>                 │\n");
+    printf("  │ -o  <output mode [FILEPATH|-]>       │\n");
+    printf("  └──────────────────────────────────────┘\n");
 }
 
 int get_vsamp(const char* subsampling_str)
@@ -45,11 +45,11 @@ int get_hsamp(const char* subsampling_str)
     }
 }
 
-int get_dct(const char* dct_str)
+J_DCT_METHOD get_dct(const char* dct_str)
 {
-    if (strcmp(dct_str, "int") == 0) return 0;
-    if (strcmp(dct_str, "fast") == 0) return 1;
-    if (strcmp(dct_str, "float") == 0) return 2;
+    if (strcmp(dct_str, "int") == 0) return JDCT_ISLOW;
+    if (strcmp(dct_str, "fast") == 0) return JDCT_IFAST;
+    if (strcmp(dct_str, "float") == 0) return JDCT_FLOAT;
     return -1;
 }
 
@@ -103,6 +103,7 @@ int main(int argc, char** argv)
             break;
         default:
             fprintf(stderr, "Usage error\n");
+            print_syntax();
             exit(EXIT_FAILURE);
         }
     }
