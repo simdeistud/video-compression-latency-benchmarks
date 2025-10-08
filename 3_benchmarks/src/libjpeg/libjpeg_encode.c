@@ -1,148 +1,159 @@
 #include "../img_utils.h"
 #include "jpeglib.h"
 #include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
-int main(int argc, char **argv) {
+
+void print_syntax()
+{
+    printf("\nProgram Input Syntax:\n\n");
+    printf("  ┌────────────────────────────────────────┐\n");
+    printf("  │ -w    <width [px]>                     │\n");
+    printf("  │ -h    <height [px]>                    │\n");
+    printf("  │ -s    <subsampling [444|422|420]>      │\n");
+    printf("  │ -q    <quality [10...100]>             │\n");
+    printf("  │ -d  <DCT method [int|fast|float]>      │\n");
+    printf("  │ -r    <restart intervals [0...n]>      │\n");
+    printf("  │ -i    <iterations [1...n]>             │\n");
+    printf("  │ -b    <benchmark mode>                 │\n");
+    printf("  │ -o    <output mode [FILEPATH|-]>       │\n");
+    printf("  └────────────────────────────────────────┘\n");
+}
+
+int get_vsamp(const char* subsampling_str)
+{
+    switch (atoi(subsampling_str))
+    {
+    case 444:
+    case 422: return 1;
+    case 420: return 2;
+    default: return 1;
+    }
+}
+
+int get_hsamp(const char* subsampling_str)
+{
+    switch (atoi(subsampling_str))
+    {
+    case 444: return 1;
+    case 422:
+    case 420: return 2;
+    default: return 0;
+    }
+}
+
+int get_dct(const char* dct_str)
+{
+    if (strcmp(dct_str, "int") == 0) return 0;
+    if (strcmp(dct_str, "fast") == 0) return 1;
+    if (strcmp(dct_str, "float") == 0) return 2;
+    return -1;
+}
+
+int main(int argc, char** argv)
+{
     /* Input image related data */
-    JSAMPLE *inbuf = NULL;
+    JSAMPLE* inbuf = NULL;
     size_t inbuf_size = 0;
     JSAMPROW row_pointer[1];
-    int img_h = 0;
-    int img_w = 0;
 
     /* Output image related data */
-    JSAMPLE *outbuf = NULL;
+    JSAMPLE* outbuf = NULL;
     size_t outbuf_size = 0;
 
     /* Encoder data */
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
-    int v_sampling = 0;
-    int h_sampling = 0;
-    J_COLOR_SPACE colorspace = 0;
-    int q = 0;
-    J_DCT_METHOD dct = 0;
-    int arith = 0;
-    int restart_interval = 0;
 
     /* Benchmark data */
-    clock_t start_time, end_time;
-    double total_time = 0.0; /* Initialize total_time */
-    int iterations = 1;
+    clock_t setup_start_time, setup_end_time;
+    clock_t encoding_start_time, encoding_end_time;
+    clock_t cleanup_start_time, cleanup_end_time;
 
     /* Input parsing */
+    int width = 0, height = 0, quality = 0, restart_interval = 0, iterations = 0;
+    char *subsampling_str = NULL, *dct_str = NULL, *output = NULL;
+    int benchmark = 0;
+    int opt;
 
-    if (argc == 1) {
-        printf("\nProgram Input Syntax:\n\n");
-        printf("  ┌────────────────────────────────────────────────────────────┐\n");
-        printf("  │ Filepath          : RGB24 filepath                         │\n");
-        printf("  │ Resolution        : 3840 | 1920 | 1280  (16:9 only!)       │\n");
-        printf("  │ Iterations        : 1 ... n                                │\n");
-        printf("  │ Subsampling       : 444 | 422 | 420 | 0 (grayscale)        │\n");
-        printf("  │ Quality           : 0 ... 100                              │\n");
-        printf("  │ Compression       : 0 = Huffman | 1 = Arithmetic           │\n");
-        printf("  │ DCT Method        : 0 = SLOW | 1 = FAST | 2 = FLOAT        │\n");
-        printf("  │ Restart Interval  : 0 ... n                                │\n");
-        printf("  └────────────────────────────────────────────────────────────┘\n");
+    while ((opt = getopt(argc, argv, "w:h:s:q:d:r:i:bo:")) != -1)
+    {
+        switch (opt)
+        {
+        case 'w': width = atoi(optarg);
+            break;
+        case 'h': height = atoi(optarg);
+            break;
+        case 's': subsampling_str = optarg;
+            break;
+        case 'q': quality = atoi(optarg);
+            break;
+        case 'd': dct_str = optarg;
+            break;
+        case 'r': restart_interval = atoi(optarg);
+            break;
+        case 'i': iterations = atoi(optarg);
+            break;
+        case 'b': benchmark = 1;
+            break;
+        case 'o': output = optarg;
+            break;
+        default:
+            fprintf(stderr, "Usage error\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (img_load_stdin(&inbuf, &inbuf_size))
+    {
+        fprintf(stderr, "Error: Failed to load image from stdin\n");
         return 1;
     }
 
-
-    /* Parsing Resolution argv[2] */
-    if ((img_w = atoi(argv[2])) == 0) {
-        fprintf(stderr, "Error: Failed to parse image resolution: %s\n", argv[2]);
-        return 1;
-    }
-    switch (img_w) {
-        case 3840: img_h = 2160;
-            break;
-        case 1920: img_h = 1080;
-            break;
-        case 1280: img_h = 720;
-            break;
-        default: fprintf(stderr, "Error: Resolution not supported: %s\n", argv[2]);
-            return 1;
-    }
-
-    /* Parsing iterations argv[3] */
-    if ((iterations = atoi(argv[3])) < 1) {
-        fprintf(stderr, "Error: No iterations");
-        return 1;
-    }
-
-    /* Parsing subsampling argv[4] */
-    switch (atoi(argv[4])) {
-        case 444: v_sampling = 1;
-            h_sampling = 1;
-            colorspace = JCS_YCbCr;
-            break;
-        case 422: v_sampling = 1;
-            h_sampling = 2;
-            colorspace = JCS_YCbCr;
-            break;
-        case 420: v_sampling = 2;
-            h_sampling = 2;
-            colorspace = JCS_YCbCr;
-            break;
-        default: v_sampling = 1;
-            h_sampling = 1;
-            colorspace = JCS_GRAYSCALE;
-            break;
-    }
-
-    /* Parsing quality argv[5] */
-    q = atoi(argv[5]);
-
-    /* Parsing Huffman encoding argv[6] */
-    arith = atoi(argv[6]);
-
-    /* Parsing DCT algorithm argv[7] */
-    dct = atoi(argv[7]);
-
-    /* Parsing restart interval argv[8] */
-    restart_interval = atoi(argv[8]);
-
-    if (img_load(argv[1], &inbuf, &inbuf_size)) {
-        fprintf(stderr, "Error: Failed to load image from file: %s\n", argv[1]);
-        return 1;
-    }
-
-    /* Initializing the encoder */
+    setup_start_time = clock();
+    /* Encoder setup starts here */
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
     jpeg_mem_dest(&cinfo, &outbuf, &outbuf_size);
 
     /* Setting up the input image parameters */
-    cinfo.image_width = img_w;
-    cinfo.image_height = img_h;
+    cinfo.image_width = width;
+    cinfo.image_height = height;
     cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
 
     /* Setting up the compression parameters */
     jpeg_set_defaults(&cinfo);
-    jpeg_set_quality(&cinfo, q, TRUE); /* Compression quality, chosen by the user */
-    jpeg_set_colorspace(&cinfo, colorspace); /* Output colorspace, chosen by the user */
-    cinfo.comp_info[0].v_samp_factor = v_sampling; /* Chroma subsampling options, chosen by the user */
-    cinfo.comp_info[0].h_samp_factor = h_sampling;
-    cinfo.arith_code = arith; /* Arithmetic or Huffman encoding, chosen by the user */
-    cinfo.dct_method = dct; /* Default or fast DCT, chosen by the user */
+    jpeg_set_quality(&cinfo, quality, TRUE); /* Compression quality, chosen by the user */
+    jpeg_set_colorspace(&cinfo, JCS_YCbCr); /* Output colorspace, we choose YUV */
+    cinfo.comp_info[0].v_samp_factor = get_vsamp(subsampling_str); /* Chroma subsampling options, chosen by the user */
+    cinfo.comp_info[0].h_samp_factor = get_hsamp(subsampling_str);
+    cinfo.arith_code = 0; /* Arithmetic or Huffman encoding, always choose Huffman because much faster */
+    cinfo.dct_method = get_dct(dct_str); /* DCT method, chosen by the user */
     cinfo.restart_interval = restart_interval; /* Presence of restart intervals, chosen by the user */
+    /* Encoder setup ends here */
+    setup_end_time = clock();
 
     /* Test run to see if everything works */
     jpeg_start_compress(&cinfo, TRUE);
-    while (cinfo.next_scanline < cinfo.image_height) {
+    while (cinfo.next_scanline < cinfo.image_height)
+    {
         row_pointer[0] = &inbuf[cinfo.next_scanline * cinfo.image_width * cinfo.input_components];
         jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
     jpeg_finish_compress(&cinfo);
-    img_save("out.jpeg", &outbuf, outbuf_size);
 
-    start_time = clock();
+    encoding_start_time = clock();
     /* Compression begins here, parameters and input image
        cannot be changed until it has finished             */
-    for (int i = 0; i < iterations; i++) {
+    for (int i = 0; i < iterations; i++)
+    {
         jpeg_start_compress(&cinfo, TRUE);
-        while (cinfo.next_scanline < cinfo.image_height) {
+        while (cinfo.next_scanline < cinfo.image_height)
+        {
             row_pointer[0] = &inbuf[cinfo.next_scanline * cinfo.image_width * cinfo.input_components];
             jpeg_write_scanlines(&cinfo, row_pointer, 1);
         }
@@ -151,16 +162,45 @@ int main(int argc, char **argv) {
     /* Compression ends here, a new image can be loaded in
        the input buffer and parameters can be changed
        (if not they will remain the same)                  */
-    end_time = clock();
+    encoding_end_time = clock();
 
-    total_time = (double) (end_time - start_time) / CLOCKS_PER_SEC;
-
+    cleanup_start_time = clock();
+    /* Encoder cleanup begins here */
     jpeg_destroy_compress(&cinfo);
+    /* Encoder cleanup ends here */
+    cleanup_end_time = clock();
 
-    img_destroy(inbuf);
-    img_destroy(outbuf);
+    if (benchmark)
+    {
+        double cleanup_time, encoding_time, setup_time, total_time;
+        setup_time = (double)(setup_end_time - setup_start_time) / CLOCKS_PER_SEC;
+        encoding_time = (double)(encoding_end_time - encoding_start_time) / CLOCKS_PER_SEC;
+        cleanup_time = (double)(cleanup_end_time - cleanup_start_time) / CLOCKS_PER_SEC;
+        total_time = setup_time + encoding_time + cleanup_time;
+        printf("setup:%f\nencoding:%f\ncleanup:%f\ntotal:%f\n", setup_time, encoding_time, cleanup_time, total_time);
+    }
 
-    printf("%f\n", total_time);
+    if (output == NULL)
+    {
+        return 0;
+    }
+
+    if (strcmp(output, "-") == 0)
+    {
+        size_t written = fwrite(outbuf, 1, outbuf_size, stdout);
+        if (written != outbuf_size)
+        {
+            perror("Couldn't write to stdout");
+            return 1;
+        }
+    }
+    else
+    {
+        if (img_save(output, &outbuf, outbuf_size))
+        {
+            return 1;
+        }
+    }
 
     return 0;
 }
