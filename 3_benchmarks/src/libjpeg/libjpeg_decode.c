@@ -14,7 +14,7 @@ void print_syntax()
     printf("  │ -i  <iterations [1...n]>             │\n");
     printf("  │ -b  <benchmark mode>                 │\n");
     printf("  │ -o  <output mode [FILEPATH|-]>       │\n");
-    printf("  └────────────────────────────────────────┘\n");
+    printf("  └──────────────────────────────────────┘\n");
 }
 
 J_DCT_METHOD get_dct(const char* dct_str)
@@ -112,7 +112,6 @@ int main(int argc, char** argv)
         jpeg_read_scanlines(&cinfo, row_pointer, 1);
     }
     jpeg_finish_decompress(&cinfo);
-    img_save("out.rgb", &outbuf, outbuf_size);
 
     decoding_start_time = clock();
     /* Decompression benchmark begins here, parameters and input image

@@ -112,7 +112,6 @@ int main(int argc, char** argv)
         jpeg_read_scanlines(&cinfo, row_pointer, 1);
     }
     jpeg_finish_decompress(&cinfo);
-    img_save("out.rgb", &outbuf, outbuf_size);
 
     decoding_start_time = clock();
     /* Decompression benchmark begins here, parameters and input image

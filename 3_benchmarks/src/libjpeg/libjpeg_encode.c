@@ -134,7 +134,7 @@ int main(int argc, char** argv)
     cinfo.comp_info[0].h_samp_factor = get_hsamp(subsampling_str);
     cinfo.arith_code = 0; /* Arithmetic or Huffman encoding, always choose Huffman because much faster */
     cinfo.dct_method = get_dct(dct_str); /* DCT method, chosen by the user */
-    cinfo.restart_interval = restart_interval; /* Presence of restart intervals, chosen by the user */
+    cinfo.restart_in_rows = restart_interval; /* Presence of restart intervals, chosen by the user */
     /* Encoder setup ends here */
     setup_end_time = clock();
 
@@ -152,6 +152,7 @@ int main(int argc, char** argv)
        cannot be changed until it has finished             */
     for (int i = 0; i < iterations; i++)
     {
+        jpeg_mem_dest(&cinfo, &outbuf, &outbuf_size);
         jpeg_start_compress(&cinfo, TRUE);
         while (cinfo.next_scanline < cinfo.image_height)
         {
