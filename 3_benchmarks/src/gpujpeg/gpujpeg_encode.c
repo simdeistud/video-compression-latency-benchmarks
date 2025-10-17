@@ -134,7 +134,6 @@ int main(int argc, char** argv)
     param.segment_info = param.interleaved;
     param.restart_interval = restart_interval;
     gpujpeg_parameters_chroma_subsampling(&param, get_sampnum(subsampling_str));
-    param.color_space_internal = GPUJPEG_YCBCR;
     gpujpeg_encoder_input_set_image(&encoder_input, inbuf);
     /* Encoder setup ends here */
     setup_end_time = clock();
