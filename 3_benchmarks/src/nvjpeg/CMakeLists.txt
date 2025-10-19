@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
-project(nvjpeg_benchmarks CXX)
+project(nvjpeg_benchmarks C)
 
-add_executable(nvjpeg_encode nvjpeg_encode.cpp)
+add_executable(nvjpeg_encode nvjpeg_encode.c)
 target_link_libraries(nvjpeg_encode nvjpeg cudart)
 
-add_executable(nvjpeg_decode nvjpeg_decode.cpp)
+add_executable(nvjpeg_decode nvjpeg_decode.c)
 target_link_libraries(nvjpeg_decode nvjpeg cudart)
