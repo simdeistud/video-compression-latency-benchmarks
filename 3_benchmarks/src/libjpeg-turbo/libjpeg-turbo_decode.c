@@ -82,14 +82,6 @@ int main(int argc, char** argv)
 
     /* Setting up decompression parameters */
     cinfo.dct_method = get_dct(dct_str);
-
-    /* Test run to see if everything works and to set image parameters.
-     * This benchmark measures the decoding time given that the most
-     * important metadata of the decoded raw image (height, length, bits per channel)
-     * are already known beforehand. This benchmark is not made to measure
-     * decoding random images, for which including these preparatory steps
-     * in the benchmark would be reasonable!
-     */
     jpeg_mem_src(&cinfo, inbuf, inbuf_size);
     /* Image source has to be set before every run even though it's the same pointer... */
     if (jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK)
