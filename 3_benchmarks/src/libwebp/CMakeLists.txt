@@ -9,7 +9,7 @@ link_directories(${LIBWEBP_LIBRARY_DIR})
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=${LIBWEBP_LIBRARY_DIR}")
 
 add_executable(libwebp_encode libwebp_encode.c)
-target_link_libraries(libwebp_encode webp)
+target_link_libraries(libwebp_encode webp m sharpyuv)
 
 add_executable(libwebp_decode libwebp_decode.c)
-target_link_libraries(libwebp_decode webp)
+target_link_libraries(libwebp_decode webp m sharpyuv)
