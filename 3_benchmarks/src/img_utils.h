@@ -86,14 +86,14 @@ int img_load_stdin(unsigned char **data, size_t *size)
 {
   
 size_t capacity = 4096, length = 0;
-    unsigned char *buffer = malloc(capacity);
+    unsigned char *buffer = (unsigned char *) malloc(capacity);
     if (!buffer) return 1;
 
     int byte;
     while ((byte = getchar()) != EOF) {
         if (length >= capacity) {
             capacity *= 2;
-            unsigned char *new_buffer = realloc(buffer, capacity);
+            unsigned char *new_buffer = (unsigned char *) realloc(buffer, capacity);
             if (!new_buffer) {
                 free(buffer);
                 return 1;
