@@ -95,9 +95,7 @@ int main(int argc, char** argv)
     }
     pic.width = width;
     pic.height = height;
-    /*if (!WebPPictureAlloc(&pic)) {
-        return 0;   // memory error
-    }*/
+
     WebPPictureImportRGB(&pic, inbuf, width * 3);
     WebPMemoryWriterInit(&wrt);
     pic.writer = WebPMemoryWrite;
@@ -107,6 +105,11 @@ int main(int argc, char** argv)
     setup_end_time = clock();
 
     /* Test run to see if everything works */
+    WebPPictureImportRGB(&pic, inbuf, width * 3);
+    WebPMemoryWriterInit(&wrt);
+    pic.writer = WebPMemoryWrite;
+    pic.custom_ptr = &wrt;
+    outbuf = wrt.mem;
     WebPEncode(&config, &pic);
     WebPPictureFree(&pic);
     //WebPMemoryWriterClear(&wrt);
@@ -118,6 +121,13 @@ int main(int argc, char** argv)
        cannot be changed until it has finished             */
     for (int i = 0; i < iterations; i++)
     {
+        WebPPictureImportRGB(&pic, inbuf, width * 3);
+        WebPMemoryWriterInit(&wrt);
+        pic.writer = WebPMemoryWrite;
+        pic.custom_ptr = &wrt;
+        outbuf = wrt.mem;
+        WebPEncode(&config, &pic);
+        WebPPictureFree(&pic);
 
     }
     /* Compression ends here, a new image can be loaded in
@@ -127,8 +137,19 @@ int main(int argc, char** argv)
 
     cleanup_start_time = clock();
     /* Encoder cleanup begins here */
+    WebPMemoryWriterClear(&wrt);
     /* Encoder cleanup ends here */
     cleanup_end_time = clock();
+
+    WebPPictureImportRGB(&pic, inbuf, width * 3);
+    WebPMemoryWriterInit(&wrt);
+    pic.writer = WebPMemoryWrite;
+    pic.custom_ptr = &wrt;
+    outbuf = wrt.mem;
+    WebPEncode(&config, &pic);
+    WebPPictureFree(&pic);
+    outbuf = wrt.mem;
+    outbuf_size = wrt.size;
 
     if (benchmark)
     {
