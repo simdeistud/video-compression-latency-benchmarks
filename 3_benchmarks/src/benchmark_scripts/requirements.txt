@@ -5,3 +5,5 @@ pillow
 pandas
 numpy
 yuvio
+vmaf-torch
+Fast-SSIM
