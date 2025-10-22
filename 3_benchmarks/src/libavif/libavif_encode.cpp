@@ -38,15 +38,15 @@ avifPixelFormat get_subsampling(const char* subsampling_str)
 
 avifCodecChoice get_codec(const char* codec_str)
 {
-    if (strcmp("rav1e", codec_str) != 0)
+    if (strcmp("rav1e", codec_str) == 0)
     {
         return AVIF_CODEC_CHOICE_RAV1E;
     }
-    if (strcmp("svt", codec_str) != 0)
+    if (strcmp("svt", codec_str) == 0)
     {
         return AVIF_CODEC_CHOICE_SVT;
     }
-    if (strcmp("aom", codec_str) != 0)
+    if (strcmp("aom", codec_str) == 0)
     {
         return AVIF_CODEC_CHOICE_AOM;
     }
@@ -57,12 +57,12 @@ int main(int argc, char** argv)
 {
     /* Input image related data */
     avifRGBImage rgb = {0};
+    avifImage* image = NULL;
     unsigned char* inbuf = NULL;
     size_t inbuf_size = 0;
 
     /* Output image related data */
     avifRWData avifOutput = AVIF_DATA_EMPTY;
-    avifImage* image = NULL;
     unsigned char* outbuf = NULL;
     size_t outbuf_size = 0;
 
@@ -110,7 +110,13 @@ int main(int argc, char** argv)
         }
     }
 
-    if (img_load_stdin(&inbuf, &inbuf_size))
+    /*if (img_load_stdin(&inbuf, &inbuf_size))
+    {
+        fprintf(stderr, "Error: Failed to load image from stdin\n");
+        return 1;
+    }*/
+
+    if (img_load("frame_hd.rgb", &inbuf, &inbuf_size))
     {
         fprintf(stderr, "Error: Failed to load image from stdin\n");
         return 1;
@@ -129,12 +135,14 @@ int main(int argc, char** argv)
 
     /* Test run to see if everything works */
     avifRGBImageSetDefaults(&rgb, image);
+    rgb.format = AVIF_RGB_FORMAT_RGB;
     rgb.pixels = inbuf;
+    rgb.rowBytes = width * 3; // RowBytes = stride...
     rgb.maxThreads = encoder->maxThreads;
-    rgb.avoidLibYUV = 1;
-    avifImageRGBToYUV(image, &rgb);
-    avifEncoderAddImage(encoder, image, 1, AVIF_ADD_IMAGE_FLAG_SINGLE);
-    avifEncoderFinish(encoder, &avifOutput);
+    //rgb.avoidLibYUV = 1;
+    int r = avifImageRGBToYUV(image, &rgb);
+    r = avifEncoderAddImage(encoder, image, 1, AVIF_ADD_IMAGE_FLAG_SINGLE);
+    r = avifEncoderFinish(encoder, &avifOutput);
     outbuf = avifOutput.data;
     outbuf_size = avifOutput.size;
 
