@@ -17,7 +17,7 @@ void print_syntax()
     printf("  │ -s  <subsampling [444|422|420]>      │\n");
     printf("  │ -q  <quality [10...100]>             │\n");
     printf("  │ -f  <speed [0...10]>                 │\n");
-    printf("  │ -c  <codec [aom|dav1d|svt]>          │\n");
+    printf("  │ -c  <codec [aom|rav1e|svt]>          │\n");
     printf("  │ -t  <threads [1...n]>                │\n");
     printf("  │ -i  <iterations [1...n]>             │\n");
     printf("  │ -b  <benchmark mode>                 │\n");
@@ -110,13 +110,7 @@ int main(int argc, char** argv)
         }
     }
 
-    /*if (img_load_stdin(&inbuf, &inbuf_size))
-    {
-        fprintf(stderr, "Error: Failed to load image from stdin\n");
-        return 1;
-    }*/
-
-    if (img_load("frame_hd.rgb", &inbuf, &inbuf_size))
+    if (img_load_stdin(&inbuf, &inbuf_size))
     {
         fprintf(stderr, "Error: Failed to load image from stdin\n");
         return 1;
@@ -130,6 +124,7 @@ int main(int argc, char** argv)
     encoder->maxThreads = threads;
     encoder->speed = speed;
     encoder->quality = quality;
+    //int r = avifEncoderSetCodecSpecificOption(encoder, key, value);
     avifRGBImageSetDefaults(&rgb, image);
     rgb.format = AVIF_RGB_FORMAT_RGB;
     rgb.pixels = inbuf;
