@@ -130,36 +130,42 @@ int main(int argc, char** argv)
     encoder->maxThreads = threads;
     encoder->speed = speed;
     encoder->quality = quality;
-    /* Encoder setup ends here */
-    setup_end_time = clock();
-
-    /* Test run to see if everything works */
     avifRGBImageSetDefaults(&rgb, image);
     rgb.format = AVIF_RGB_FORMAT_RGB;
     rgb.pixels = inbuf;
     rgb.rowBytes = width * 3; // RowBytes = stride...
     rgb.maxThreads = encoder->maxThreads;
     //rgb.avoidLibYUV = 1;
+    /* Encoder setup ends here */
+    setup_end_time = clock();
+
+    /* Test run to see if everything works */
     int r = avifImageRGBToYUV(image, &rgb);
     r = avifEncoderAddImage(encoder, image, 1, AVIF_ADD_IMAGE_FLAG_SINGLE);
     r = avifEncoderFinish(encoder, &avifOutput);
-    outbuf = avifOutput.data;
-    outbuf_size = avifOutput.size;
+
 
     encoding_start_time = clock();
     /* Compression begins here, parameters and input image
        cannot be changed until it has finished             */
     for (int i = 0; i < iterations; i++)
     {
-
+        avifImageRGBToYUV(image, &rgb);
+        avifEncoderAddImage(encoder, image, 1, AVIF_ADD_IMAGE_FLAG_SINGLE);
+        avifEncoderFinish(encoder, &avifOutput);
     }
     /* Compression ends here, a new image can be loaded in
        the input buffer and parameters can be changed
        (if not they will remain the same)                  */
     encoding_end_time = clock();
 
+    outbuf = avifOutput.data;
+    outbuf_size = avifOutput.size;
+
     cleanup_start_time = clock();
     /* Encoder cleanup begins here */
+    avifImageDestroy(image);
+    avifEncoderDestroy(encoder);
     /* Encoder cleanup ends here */
     cleanup_end_time = clock();
 
