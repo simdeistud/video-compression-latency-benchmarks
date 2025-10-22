@@ -10,11 +10,29 @@ void print_syntax()
 {
     printf("\nProgram Input Syntax:\n\n");
     printf("  ┌──────────────────────────────────────┐\n");
-    printf("  │ -t  <multithread [0|1]>              │\n");
+    printf("  │ -c  <codec [aom|dav1d|gav1]>         │\n");
+    printf("  │ -t  <threads [1...n]>                │\n");
     printf("  │ -i  <iterations [1...n]>             │\n");
     printf("  │ -b  <benchmark mode>                 │\n");
     printf("  │ -o  <output mode [FILEPATH|-]>       │\n");
     printf("  └──────────────────────────────────────┘\n");
+}
+
+avifCodecChoice get_codec(const char* codec_str)
+{
+    if (strcmp("dav1d", codec_str) == 0)
+    {
+        return AVIF_CODEC_CHOICE_DAV1D;
+    }
+    if (strcmp("gav1", codec_str) == 0)
+    {
+        return AVIF_CODEC_CHOICE_LIBGAV1;
+    }
+    if (strcmp("aom", codec_str) == 0)
+    {
+        return AVIF_CODEC_CHOICE_AOM;
+    }
+    return AVIF_CODEC_CHOICE_AUTO;
 }
 
 int main(int argc, char** argv)
@@ -24,12 +42,13 @@ int main(int argc, char** argv)
     size_t inbuf_size = 0;
 
     /* Output image related data */
+    avifRGBImage rgb;
+    avifResult result;
     unsigned char* outbuf = NULL;
     size_t outbuf_size = 0;
 
     /* Decoder data */
-    Decode
-    WebPDecoderConfig config;
+    avifDecoder* decoder = NULL;
     int width = 0, height = 0;
 
     /* Benchmark data */
@@ -37,16 +56,18 @@ int main(int argc, char** argv)
     clock_t decoding_start_time, decoding_end_time;
     clock_t cleanup_start_time, cleanup_end_time;
 
-    int threaded = 0, iterations = 0;
-    char* output = NULL;
+    int threads = 0, iterations = 0;
+    char *codec_str = NULL, *output = NULL;
     int benchmark = 0;
     int opt;
 
-    while ((opt = getopt(argc, argv, "t:i:bo:")) != -1)
+    while ((opt = getopt(argc, argv, "c:t:i:bo:")) != -1)
     {
         switch (opt)
         {
-        case 't': threaded = atoi(optarg);
+        case 'c': codec_str = optarg;
+            break;
+        case 't': threads = atoi(optarg);
             break;
         case 'i': iterations = atoi(optarg);
             break;
@@ -69,31 +90,45 @@ int main(int argc, char** argv)
 
     setup_start_time = clock();
     /* Decoder setup starts here */
-    WebPInitDecoderConfig(&config);
-    WebPGetFeatures(inbuf, inbuf_size, &config.input);
-    WebPGetInfo(inbuf, inbuf_size, &width, &height);
-    outbuf_size = width * height * 3;
-    outbuf = (unsigned char*) malloc(outbuf_size);
-    config.options.no_fancy_upsampling = 1;
-    config.options.use_scaling = 0;
-    config.options.use_threads = threaded;
-    config.output.colorspace = MODE_RGB;
-    config.output.u.RGBA.rgba = outbuf;
-    config.output.u.RGBA.stride = width * 3;
-    config.output.u.RGBA.size = outbuf_size;
-    config.output.is_external_memory = 1;
+    decoder = avifDecoderCreate();
+    result = avifDecoderSetIOMemory(decoder, inbuf, inbuf_size);
+    if (result != AVIF_RESULT_OK) {
+        fprintf(stderr, "Cannot set IO on avifDecoder\n");
+        return 1;
+    }
+    decoder->codecChoice = get_codec(codec_str);
+    decoder->maxThreads = threads;
     /* Encoder setup ends here */
     setup_end_time = clock();
 
     /* Test decode */
-    WebPDecode(inbuf, inbuf_size, &config);
+    result = avifDecoderParse(decoder);
+    if (result != AVIF_RESULT_OK) {
+        fprintf(stderr, "Failed to decode image: %s\n", avifResultToString(result));
+        return 1;
+    }
+    avifDecoderNextImage(decoder);
+    avifRGBImageSetDefaults(&rgb, decoder->image);
+    rgb.rowBytes = rgb.width * 3;
+    rgb.maxThreads = decoder->maxThreads;
+    rgb.format = AVIF_RGB_FORMAT_RGB;
+    outbuf_size = rgb.width * rgb.height * 3;
+    outbuf = (unsigned char*) malloc(outbuf_size);
+    rgb.pixels = outbuf;
+    result = avifImageYUVToRGB(decoder->image, &rgb);
+    if (result != AVIF_RESULT_OK) {
+        fprintf(stderr, "Conversion from YUV failed: (%s)\n", avifResultToString(result));
+        return 1;
+    }
 
     decoding_start_time = clock();
     /* Decompression benchmark begins here, parameters and input image
     cannot be changed until it has finished */
     for (int i = 0; i < iterations; i++)
     {
-        WebPDecode(inbuf, inbuf_size, &config);
+        avifDecoderParse(decoder);
+        avifDecoderNextImage(decoder);
+        avifImageYUVToRGB(decoder->image, &rgb);
     }
     /* Decompression ends here, a new image can be loaded in
     the input buffer and parameters can be changed
@@ -102,7 +137,8 @@ int main(int argc, char** argv)
 
     cleanup_start_time = clock();
     /* Encoder cleanup begins here */
-    WebPFreeDecBuffer(&config.output);
+    //avifRGBImageFreePixels(&rgb); // Only use in conjunction with avifRGBImageAllocatePixels()
+    avifDecoderDestroy(decoder);
     /* Encoder cleanup ends here */
     cleanup_end_time = clock();
 
