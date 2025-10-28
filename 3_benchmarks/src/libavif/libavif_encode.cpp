@@ -119,36 +119,43 @@ int main(int argc, char** argv)
     setup_start_time = clock();
     /* Encoder setup starts here */
     image = avifImageCreate(width, height, 8, get_subsampling(subsampling_str));
-    encoder = avifEncoderCreate();
-    encoder->codecChoice = get_codec(codec_str);
-    encoder->maxThreads = threads;
-    encoder->speed = speed;
-    encoder->quality = quality;
     //int r = avifEncoderSetCodecSpecificOption(encoder, key, value);
     avifRGBImageSetDefaults(&rgb, image);
     rgb.format = AVIF_RGB_FORMAT_RGB;
     rgb.pixels = inbuf;
     rgb.rowBytes = width * 3; // RowBytes = stride...
-    rgb.maxThreads = encoder->maxThreads;
+    rgb.maxThreads = threads;
     //rgb.avoidLibYUV = 1;
     /* Encoder setup ends here */
     setup_end_time = clock();
 
     /* Test run to see if everything works */
+    encoder = avifEncoderCreate();
+    encoder->codecChoice = get_codec(codec_str);
+    encoder->maxThreads = threads;
+    encoder->speed = speed;
+    encoder->quality = quality;
     int r = avifImageRGBToYUV(image, &rgb);
     r = avifEncoderAddImage(encoder, image, 1, AVIF_ADD_IMAGE_FLAG_SINGLE);
     r = avifEncoderFinish(encoder, &avifOutput);
-
+    avifEncoderDestroy(encoder);
 
     encoding_start_time = clock();
     /* Compression begins here, parameters and input image
        cannot be changed until it has finished             */
     for (int i = 0; i < iterations; i++)
     {
+        encoder = avifEncoderCreate(); // There is some internal state that skips encoding if an image has already been encoded (???), so we need to create an encoder for each frame (??????)
+        encoder->codecChoice = get_codec(codec_str);
+        encoder->maxThreads = threads;
+        encoder->speed = speed;
+        encoder->quality = quality;
         avifImageRGBToYUV(image, &rgb);
         avifEncoderAddImage(encoder, image, 1, AVIF_ADD_IMAGE_FLAG_SINGLE);
         avifEncoderFinish(encoder, &avifOutput);
+        avifEncoderDestroy(encoder);
     }
+
     /* Compression ends here, a new image can be loaded in
        the input buffer and parameters can be changed
        (if not they will remain the same)                  */
@@ -160,7 +167,6 @@ int main(int argc, char** argv)
     cleanup_start_time = clock();
     /* Encoder cleanup begins here */
     avifImageDestroy(image);
-    avifEncoderDestroy(encoder);
     /* Encoder cleanup ends here */
     cleanup_end_time = clock();
 
