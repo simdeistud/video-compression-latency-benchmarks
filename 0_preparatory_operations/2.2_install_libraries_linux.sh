@@ -22,6 +22,10 @@ cmake --install ../2_libraries/libjxl/build
 mkdir ../2_libraries/_installdir/gpujpeg
 cmake --install ../2_libraries/gpujpeg/build
 
+# Install jpeggpu
+mkdir ../2_libraries/_installdir/jpeggpu
+cmake --install ../2_libraries/jpeggpu/build
+
 # Install libwebp
 mkdir ../2_libraries/_installdir/libwebp
 cmake --install ../2_libraries/libwebp/build

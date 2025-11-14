@@ -23,6 +23,10 @@ cmake --build ../2_libraries/libjxl/build --config Release --parallel
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=native -B ../2_libraries/gpujpeg/build -S ../2_libraries/gpujpeg -DHUFFMAN_GPU_CONST_TABLE=ON -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/gpujpeg
 cmake --build ../2_libraries/gpujpeg/build --config Release --parallel
 
+# Build jpeggpu
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=native -B ../2_libraries/jpeggpu/build -S ../2_libraries/jpeggpu -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/jpeggpu
+cmake --build ../2_libraries/jpeggpu/build --config Release --parallel
+
 # Build libwebp
 cmake -S ../2_libraries/libwebp -B ../2_libraries/libwebp/build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$(pwd)/../2_libraries/_installdir/libwebp
 cmake --build ../2_libraries/libwebp/build --config Release --parallel

@@ -25,13 +25,11 @@ git clone --depth 1 --recursive --shallow-submodules https://github.com/google/j
 mkdir ../2_libraries/libjxl
 git clone --branch v0.11.1 --depth 1 --recursive --shallow-submodules https://github.com/libjxl/libjxl.git ../2_libraries/libjxl
 
-# Dowload gpujpeg version 0.27.7 (10-07-2025)
-mkdir ../2_libraries/gpujpeg
-wget -O ../2_libraries/gpujpeg/src.zip https://github.com/CESNET/GPUJPEG/archive/refs/tags/v0.27.7.zip
-unzip ../2_libraries/gpujpeg/src.zip -d ../2_libraries/gpujpeg
-rm ../2_libraries/gpujpeg/src.zip
-cp -r ../2_libraries/gpujpeg/GPUJPEG-0.27.7/* ../2_libraries/gpujpeg/
-rm -r ../2_libraries/gpujpeg/GPUJPEG-0.27.7
+# Dowload gpujpeg version
+git clone https://github.com/bbc/vc2hqencode.git ../2_libraries/gpujpeg
+
+# Download jpeggpu
+git clone https://github.com/nolmoonen/jpeggpu.git ../2_libraries/jpeggpu
 
 # Download libavif version 1.3.0 (09-05-2025)
 mkdir ../2_libraries/libavif
