@@ -19,7 +19,7 @@ sns.set_theme(style="whitegrid")
 # --- Main Configuration ---
 
 # Number of times to run encode/decode for each parameter set to average the time
-N_ITERATIONS = 1000  # 100 is a good number of iterations, wrt to 1000 it changes almost nothing
+N_ITERATIONS = 100  # 100 is a good number of iterations, wrt to 1000 it changes almost nothing
 
 # Resolutions to test (Name: (Width, Height))
 RESOLUTIONS = {
@@ -92,7 +92,7 @@ for frame in range(1, 15, 1):
                 # --- Decoding ---
                 # 1. Benchmark Decoding in memory
                 dec_cmd = [
-                    '/home/simone/Documenti/video-compression-latency-benchmarks/3_benchmarks/src/nvjpeg/cmake-build-debug/nvjpeg_decode',
+                    '/home/simone/Documenti/video-compression-latency-benchmarks/3_benchmarks/src/jpeggpu/cmake-build-debug/jpeggpu_decode',
                     '-i', f'{N_ITERATIONS}',
                     '-b']
                 dec_proc = subprocess.run(dec_cmd, input=compressed_jpg_data, capture_output=True, check=True)
@@ -100,7 +100,7 @@ for frame in range(1, 15, 1):
 
                 # 2. Obtain decoded image
                 dec_cmd = [
-                    '/home/simone/Documenti/video-compression-latency-benchmarks/3_benchmarks/src/nvjpeg/cmake-build-debug/nvjpeg_decode',
+                    '/home/simone/Documenti/video-compression-latency-benchmarks/3_benchmarks/src/jpeggpu/cmake-build-debug/jpeggpu_decode',
                     '-i', "1",
                     '-o', '-']
                 dec_proc = subprocess.run(dec_cmd, input=compressed_jpg_data, capture_output=True, check=True)
@@ -146,6 +146,6 @@ for frame in range(1, 15, 1):
                 progress += 1
 # Create and save the DataFrame
 df = pd.DataFrame(results)
-df.to_csv('results_nvjpeg_LoLa.csv', index=False)
-print("\n✅ Benchmarking complete! Results saved to 'results_nvjpeg_LoLa.csv'")
+df.to_csv('results_nvjpeg+jpeggpu_LoLa.csv', index=False)
+print("\n✅ Benchmarking complete! Results saved to 'results_nvjpeg+jpeggpu_LoLa.csv'")
 df.head()
