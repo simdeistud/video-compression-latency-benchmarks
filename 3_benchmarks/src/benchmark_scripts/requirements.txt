@@ -1,3 +1,4 @@
+requests
 scikit-image
 seaborn
 matplotlib
@@ -7,3 +8,4 @@ numpy
 yuvio
 vmaf-torch
 Fast-SSIM
+rawpy
