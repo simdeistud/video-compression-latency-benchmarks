@@ -60,7 +60,6 @@ int main(int argc, char** argv)
 
     /* Benchmark data */
     clock_t setup_start_time, setup_end_time;
-    clock_t encoding_start_time, encoding_end_time;
     clock_t cleanup_start_time, cleanup_end_time;
 
     /* Input parsing */
@@ -134,28 +133,37 @@ int main(int argc, char** argv)
     param.segment_info = param.interleaved;
     param.restart_interval = restart_interval;
     gpujpeg_parameters_chroma_subsampling(&param, get_sampnum(subsampling_str));
-    gpujpeg_encoder_input_set_image(&encoder_input, inbuf);
     /* Encoder setup ends here */
     setup_end_time = clock();
 
     /* Test run to see if everything works */
+    gpujpeg_encoder_input_set_image(&encoder_input, inbuf);
     if (gpujpeg_encoder_encode(encoder, &param, &param_image, &encoder_input, &outbuf, &outbuf_size))
     {
         perror("Failed to encode image");
         return 1;
     }
 
-    encoding_start_time = clock();
+    double encoding_time = 0;
     /* Compression begins here, parameters and input image
        cannot be changed until it has finished             */
     for (int i = 0; i < iterations; i++)
     {
-        gpujpeg_encoder_encode(encoder, &param, &param_image, &encoder_input, &outbuf, &outbuf_size);
+        unsigned char* curr_img = malloc(inbuf_size);
+        memcpy(curr_img, inbuf, inbuf_size);
+        unsigned char* curr_out = malloc(outbuf_size);
+        const clock_t encoding_start_time = clock();
+        gpujpeg_encoder_input_set_image(&encoder_input, curr_img);
+        gpujpeg_encoder_encode(encoder, &param, &param_image, &encoder_input, &curr_out, &outbuf_size);
+        const clock_t encoding_end_time = clock();
+        const double diff = (double)(encoding_end_time - encoding_start_time) / CLOCKS_PER_SEC;
+        encoding_time += diff;
+        free(curr_img);
+        //free(curr_out);
     }
     /* Compression ends here, a new image can be loaded in
        the input buffer and parameters can be changed
        (if not they will remain the same)                  */
-    encoding_end_time = clock();
 
     /* The cleanup process also deallocates the compressed image.
      * For this reason, we perform a full temporary copy so we can
@@ -172,9 +180,8 @@ int main(int argc, char** argv)
 
     if (benchmark)
     {
-        double cleanup_time, encoding_time, setup_time, total_time;
+        double cleanup_time, setup_time, total_time;
         setup_time = (double)(setup_end_time - setup_start_time) / CLOCKS_PER_SEC;
-        encoding_time = (double)(encoding_end_time - encoding_start_time) / CLOCKS_PER_SEC;
         cleanup_time = (double)(cleanup_end_time - cleanup_start_time) / CLOCKS_PER_SEC;
         total_time = setup_time + encoding_time + cleanup_time;
         printf("setup:%f\nencoding:%f\ncleanup:%f\ntotal:%f\n", setup_time, encoding_time, cleanup_time, total_time);
