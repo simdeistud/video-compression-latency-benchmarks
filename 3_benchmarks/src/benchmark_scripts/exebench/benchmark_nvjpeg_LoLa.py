@@ -19,13 +19,16 @@ sns.set_theme(style="whitegrid")
 # --- Main Configuration ---
 
 # Number of times to run encode/decode for each parameter set to average the time
-N_ITERATIONS = 1000  # 100 is a good number of iterations, wrt to 1000 it changes almost nothing
+N_ITERATIONS = 100
 
 # Resolutions to test (Name: (Width, Height))
 RESOLUTIONS = {
     '1280x720': (1280, 720),
-    #'1920x1080': (1920, 1080),
+    '1920x1080': (1920, 1080),
+    '3840x2160': (3840, 2160),
 }
+
+DATASET_SIZE = 2585
 
 # Parameters to benchmark
 QUALITIES = range(40, 96, 1)
@@ -42,17 +45,18 @@ os.makedirs('temp_files', exist_ok=True)
 # %%
 # Create directories to hold our generated files
 os.makedirs('raw_images', exist_ok=True)
-raw_imgs_path = "/home/simone/Documenti/video-compression-latency-benchmarks/1_video_material"
+raw_imgs_path = "/home/simone/Documenti/video-compression-latency-benchmarks/1_video_material/RAISE"
 os.makedirs('temp_files', exist_ok=True)
 # %%
 results = []
 total_combinations = len(RESOLUTIONS) * len(QUALITIES) * len(SUBSAMPLINGS)
 
-for frame in range(1, 15, 1):
+for frame in range(1, 101, 1):
     progress = 1
     RESOLUTION_TO_FILENAME = {
-        '1280x720': f'frame_hd-{frame}.rgb',
-        '1920x1080': f'frame_fullhd-{frame}.rgb',
+        '1280x720': f'hd_{frame}.rgb',
+        '1920x1080': f'fullhd_{frame}.rgb',
+        '3840x2160': f'ultrahd_{frame}.rgb',
     }
     for res_name, (w, h) in RESOLUTIONS.items():
         original_rgb_path = os.path.join(raw_imgs_path, RESOLUTION_TO_FILENAME[res_name])
