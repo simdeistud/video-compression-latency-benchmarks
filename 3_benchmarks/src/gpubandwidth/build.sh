@@ -1,0 +1,1 @@
+nvcc -O2 transfer_bench.cu -o transfer_bench
