@@ -1,0 +1,16 @@
+Resolution,Avg RGB Upload Time (ms),Avg RGB Download Time (ms),Avg JPEG Upload Time (ms),Avg JPEG Download Time (ms)
+1280x720,"0.080768
+","0.088258
+","0.019945
+","0.018607
+"
+1920x1080,"0.180360
+","0.194293
+","0.046963
+","0.049652
+"
+3840x2160,"0.692579
+","0.746293
+","0.173428
+","0.188506
+"
