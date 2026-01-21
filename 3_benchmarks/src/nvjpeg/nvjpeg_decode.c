@@ -9,6 +9,29 @@
 #include <string.h>
 #include "../img_utils.h"
 
+// ---------- allocators required by nvjpegCreateEx ----------
+static int dev_malloc(void **p, size_t s)
+{
+    return (int)cudaMalloc(p, s);
+}
+static int dev_free(void *p)
+{
+    return (int)cudaFree(p);
+}
+// Use simple malloc/free for nvJPEG internal pinned allocator here;
+// we will explicitly allocate our I/O buffers as pinned via cudaHostAlloc.
+static int host_malloc(void **p, size_t s, unsigned int flags)
+{
+    (void)flags;
+    *p = malloc(s);
+    return (*p) ? 0 : 1;
+}
+static int host_free(void *p)
+{
+    free(p);
+    return 0;
+}
+
 // ---------- error-check helpers ----------
 #define CHECK_CUDA(cmd)                                                         \
 do {                                                                            \
@@ -51,7 +74,7 @@ static double timespec_diff_sec(struct timespec a, struct timespec b)
 int main(int argc, char** argv)
 {
     /* Compressed JPEG input */
-    unsigned char* inbuf = NULL;
+    unsigned char* inbuf = NULL;     // pageable
     size_t inbuf_size = 0;
 
     /* Output image (RGB interleaved) */
@@ -100,7 +123,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    // Load compressed JPEG bitstream from stdin
+    // Load compressed JPEG bitstream from stdin to pageable RAM (one-time)
     if (img_load_stdin(&inbuf, &inbuf_size))
     {
         fprintf(stderr, "Error: Failed to load image (JPEG) from stdin\n");
@@ -112,73 +135,74 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    // Setup
+    // ---- nvJPEG GPU backend setup ----
     clock_gettime(CLOCK_MONOTONIC, &setup_t0);
-    CHECK_NVJPEG(nvjpegCreateSimple(&handle));
+
+    nvjpegDevAllocator_t dev_alloc = { dev_malloc, dev_free };
+    nvjpegPinnedAllocator_t pinned_alloc = { host_malloc, host_free };
+    CHECK_NVJPEG(nvjpegCreateEx(
+        NVJPEG_BACKEND_GPU_HYBRID,   // or NVJPEG_BACKEND_HARDWARE if supported
+        &dev_alloc,
+        &pinned_alloc,
+        NVJPEG_FLAGS_DEFAULT,
+        &handle
+    ));
+
     CHECK_CUDA(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
     CHECK_CUDA(cudaEventCreate(&evt_start));
     CHECK_CUDA(cudaEventCreate(&evt_stop));
 
-    // Probe image info once to allocate output surfaces
-    // (Do not mutate bitstream contents across iterations; alternate buffers only)
-    CHECK_NVJPEG(nvjpegGetImageInfo(handle, inbuf, inbuf_size, &components, &subsampling, widths, heights));
+    // Probe JPEG info once
+    CHECK_NVJPEG(nvjpegGetImageInfo(handle, inbuf, inbuf_size,
+                                    &components, &subsampling,
+                                    widths, heights));
+
     const int out_w = widths[0];
     const int out_h = heights[0];
-    const int out_pitch = out_w * 3;             // RGB interleaved
-    const size_t out_size = (size_t)out_pitch * (size_t)out_h; // single plane for RGBI
+    const int out_pitch = out_w * 3;                        // RGB interleaved
+    const size_t out_size = (size_t)out_pitch * (size_t)out_h;
 
-    // Prepare two alternating input buffers (same content, different addresses)
+    // Pinned input buffers (ping-pong). Copy once from pageable to pinned.
     unsigned char* in_alts[2] = { NULL, NULL };
-    in_alts[0] = (unsigned char*)malloc(inbuf_size);
-    in_alts[1] = (unsigned char*)malloc(inbuf_size);
-    if (!in_alts[0] || !in_alts[1]) {
-        fprintf(stderr, "malloc failed for alternate inputs\n");
-        free(inbuf);
-        if (in_alts[0]) free(in_alts[0]);
-        if (in_alts[1]) free(in_alts[1]);
-        CHECK_CUDA(cudaEventDestroy(evt_start));
-        CHECK_CUDA(cudaEventDestroy(evt_stop));
-        CHECK_CUDA(cudaStreamDestroy(stream));
-        CHECK_NVJPEG(nvjpegDestroy(handle));
-        return 1;
-    }
+    CHECK_CUDA(cudaHostAlloc(&in_alts[0], inbuf_size, cudaHostAllocDefault));
+    CHECK_CUDA(cudaHostAlloc(&in_alts[1], inbuf_size, cudaHostAllocDefault));
     memcpy(in_alts[0], inbuf, inbuf_size);
     memcpy(in_alts[1], inbuf, inbuf_size);
 
-    // Prepare two alternating output buffers
+    // Pinned host output buffers (ping-pong)
     unsigned char* out_alts[2] = { NULL, NULL };
-    out_alts[0] = (unsigned char*)malloc(out_size);
-    out_alts[1] = (unsigned char*)malloc(out_size);
-    if (!out_alts[0] || !out_alts[1]) {
-        fprintf(stderr, "malloc failed for outputs\n");
-        free(inbuf);
-        free(in_alts[0]); free(in_alts[1]);
-        if (out_alts[0]) free(out_alts[0]);
-        if (out_alts[1]) free(out_alts[1]);
-        CHECK_CUDA(cudaEventDestroy(evt_start));
-        CHECK_CUDA(cudaEventDestroy(evt_stop));
-        CHECK_CUDA(cudaStreamDestroy(stream));
-        CHECK_NVJPEG(nvjpegDestroy(handle));
-        return 1;
-    }
+    CHECK_CUDA(cudaHostAlloc(&out_alts[0], out_size, cudaHostAllocDefault));
+    CHECK_CUDA(cudaHostAlloc(&out_alts[1], out_size, cudaHostAllocDefault));
+
+    // Device staging buffers (ping-pong) for decode output
+    unsigned char* d_out_alts[2] = { NULL, NULL };
+    CHECK_CUDA(cudaMalloc((void**)&d_out_alts[0], out_size));
+    CHECK_CUDA(cudaMalloc((void**)&d_out_alts[1], out_size));
+
     clock_gettime(CLOCK_MONOTONIC, &setup_t1);
 
-    // Initial decode test (optional sanity)
+    // Initial decode (sanity)
     {
         nvjpegJpegState_t jpeg_state = NULL;
         CHECK_NVJPEG(nvjpegJpegStateCreate(handle, &jpeg_state));
+
         nvjpegImage_t outimg; memset(&outimg, 0, sizeof(outimg));
-        outimg.channel[0] = out_alts[0];
+        outimg.channel[0] = d_out_alts[0];    // device destination
         outimg.pitch[0]   = out_pitch;
-        CHECK_NVJPEG(nvjpegDecode(handle, jpeg_state, in_alts[0], inbuf_size, output_format, &outimg, stream));
+
+        CHECK_NVJPEG(nvjpegDecode(handle, jpeg_state,
+                                  in_alts[0], inbuf_size,
+                                  output_format, &outimg, stream));
+        // bring to host
+        CHECK_CUDA(cudaMemcpyAsync(out_alts[0], d_out_alts[0], out_size,
+                                   cudaMemcpyDeviceToHost, stream));
         CHECK_CUDA(cudaStreamSynchronize(stream));
         CHECK_NVJPEG(nvjpegJpegStateDestroy(jpeg_state));
     }
 
-    // Decoding loop with isolation:
-    // - Recreate nvjpegJpegState_t each iteration (prevents internal reuse)
-    // - Alternate input/output buffers (different host addresses)
+    // Decode loop with both timings: GPU stream time and end-to-end RAM->RAM
     double decode_gpu_ms_total = 0.0;
+    double e2e_sec_total = 0.0;
 
     for (int i = 0; i < iterations; ++i)
     {
@@ -188,13 +212,31 @@ int main(int argc, char** argv)
         CHECK_NVJPEG(nvjpegJpegStateCreate(handle, &jpeg_state));
 
         nvjpegImage_t outimg; memset(&outimg, 0, sizeof(outimg));
-        outimg.channel[0] = out_alts[idx];
+        outimg.channel[0] = d_out_alts[idx];  // device staging
         outimg.pitch[0]   = out_pitch;
 
+        // ---- End-to-end timer (RAM JPEG -> RAM RGB) ----
+        struct timespec e2e_t0, e2e_t1;
+        clock_gettime(CLOCK_MONOTONIC, &e2e_t0);
+
+        // GPU-segment timer
         CHECK_CUDA(cudaEventRecord(evt_start, stream));
-        CHECK_NVJPEG(nvjpegDecode(handle, jpeg_state, in_alts[idx], inbuf_size, output_format, &outimg, stream));
+
+        // Decode to device
+        CHECK_NVJPEG(nvjpegDecode(handle, jpeg_state,
+                                  in_alts[idx], inbuf_size,
+                                  output_format, &outimg, stream));
+
+        // Device -> Host (pinned) copy
+        CHECK_CUDA(cudaMemcpyAsync(out_alts[idx], d_out_alts[idx], out_size,
+                                   cudaMemcpyDeviceToHost, stream));
+
         CHECK_CUDA(cudaEventRecord(evt_stop, stream));
-        CHECK_CUDA(cudaEventSynchronize(evt_stop));
+        // Make sure host buffer is ready
+        CHECK_CUDA(cudaStreamSynchronize(stream));
+
+        clock_gettime(CLOCK_MONOTONIC, &e2e_t1);
+        e2e_sec_total += timespec_diff_sec(e2e_t0, e2e_t1);
 
         float iter_ms = 0.0f;
         CHECK_CUDA(cudaEventElapsedTime(&iter_ms, evt_start, evt_stop));
@@ -218,10 +260,15 @@ int main(int argc, char** argv)
     {
         double setup_time   = timespec_diff_sec(setup_t0, setup_t1);
         double cleanup_time = timespec_diff_sec(cleanup_t0, cleanup_t1);
-        double decoding_time = decode_gpu_ms_total / 1000.0; // seconds
-        double total_time = setup_time + decoding_time + cleanup_time;
-        printf("setup:%f\ndecoding:%f\ncleanup:%f\ntotal:%f\n",
-               setup_time, decoding_time, cleanup_time, total_time);
+        double decoding_time_gpu = decode_gpu_ms_total / 1000.0; // seconds
+        double decoding_time_e2e = e2e_sec_total;                // seconds
+        double total_time = setup_time + decoding_time_e2e + cleanup_time;
+
+        printf("setup:%f\n",   setup_time);
+        printf("decoding_gpu_stream:%f\n", decoding_time_gpu);
+        printf("decoding_end_to_end_ram_to_ram:%f\n", decoding_time_e2e);
+        printf("cleanup:%f\n", cleanup_time);
+        printf("total:%f\n",   total_time);
     }
 
     // Output (last decoded image)
@@ -234,29 +281,31 @@ int main(int argc, char** argv)
                 perror("Couldn't write to stdout");
                 // fallthrough to frees and return error
                 free(inbuf);
-                free(in_alts[0]); free(in_alts[1]);
-                free(out_alts[0]); free(out_alts[1]);
+                cudaFreeHost(in_alts[0]); cudaFreeHost(in_alts[1]);
+                cudaFreeHost(out_alts[0]); cudaFreeHost(out_alts[1]);
+                cudaFree(d_out_alts[0]);   cudaFree(d_out_alts[1]);
                 return 1;
             }
         }
         else
         {
-            // img_save likely copies; follow your original ownership pattern
             unsigned char* tmp = last_outbuf;
             if (img_save(output, &tmp, last_out_size))
             {
                 free(inbuf);
-                free(in_alts[0]); free(in_alts[1]);
-                free(out_alts[0]); free(out_alts[1]);
+                cudaFreeHost(in_alts[0]); cudaFreeHost(in_alts[1]);
+                cudaFreeHost(out_alts[0]); cudaFreeHost(out_alts[1]);
+                cudaFree(d_out_alts[0]);   cudaFree(d_out_alts[1]);
                 return 1;
             }
         }
     }
 
-    // Free host buffers
+    // Free buffers
     free(inbuf);
-    free(in_alts[0]); free(in_alts[1]);
-    free(out_alts[0]); free(out_alts[1]);
+    cudaFreeHost(in_alts[0]); cudaFreeHost(in_alts[1]);
+    cudaFreeHost(out_alts[0]); cudaFreeHost(out_alts[1]);
+    cudaFree(d_out_alts[0]);   cudaFree(d_out_alts[1]);
 
     return 0;
 }
