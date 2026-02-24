@@ -1,117 +1,162 @@
-#ifndef IMG_UTILS_H
-#define IMG_UTILS_H
+#ifndef IMG_UTILS_WIN_H
+#define IMG_UTILS_WIN_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* Windows/MSVC-only implementation: requires <wchar.h>, <io.h>, <fcntl.h> */
 #include <stdio.h>
 #include <stdlib.h>
+#include <wchar.h>
+#include <io.h>
+#include <fcntl.h>
 
 /*
- * Loads an image from the specified file path.
+ * Loads an entire file into memory.
  * Parameters:
- *   path      - path to the image file
- *   img       - pointer to the buffer that will hold the image data
- *   img_size  - pointer to the variable that will hold the size of the image
+ *   path      - UTF-16 path to the file (Windows native)
+ *   img       - [out] *img will point to a malloc'd buffer with file contents
+ *   img_size  - [out] size of the buffer in bytes
  * Returns:
- *   0 on success, non-zero on failure
+ *   0 on success; 1 open fail; 2 alloc fail; 3 read fail; 4 size overflow.
  */
-int img_load(const char path[], unsigned char** img, size_t* img_size) {
-    FILE* file = fopen(path, "rb");
-    if (!file) {
-        return 1; // Failed to open file
-    }
-    
-    fseek(file, 0, SEEK_END);
-    *img_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+static inline int img_load(const wchar_t *path, unsigned char **img, size_t *img_size)
+{
+    if (!path || !img || !img_size) return 1;
 
-    *img = (unsigned char*) malloc(*img_size);
+    FILE *file = _wfopen(path, L"rb");
+    if (!file) return 1;
+
+    if (_fseeki64(file, 0, SEEK_END) != 0) {
+        fclose(file); return 1;
+    }
+    __int64 sz = _ftelli64(file);
+    if (sz < 0) {
+        fclose(file); return 1;
+    }
+    if (_fseeki64(file, 0, SEEK_SET) != 0) {
+        fclose(file); return 1;
+    }
+
+    /* ensure size fits in size_t */
+    if (sz > (__int64)SIZE_MAX) {
+        fclose(file); return 4;
+    }
+    *img_size = (size_t)sz;
+
+    *img = (unsigned char*)malloc(*img_size ? *img_size : 1);
     if (!*img) {
-        fclose(file);
-        return 2; // Memory allocation failed
+        fclose(file); return 2;
     }
 
-    if (fread(*img, 1, *img_size, file) != *img_size) {
+    size_t nread = fread(*img, 1, *img_size, file);
+    if (nread != *img_size) {
         free(*img);
+        *img = NULL;
         fclose(file);
-        return 3; // Failed to read file
+        return 3;
     }
 
     fclose(file);
-    return 0; // Success
+    return 0;
 }
 
 /*
- * Saves an image to the specified file path.
+ * Saves a buffer to a file.
  * Parameters:
- *   path      - path to the output image file
- *   img       - buffer containing the image data
- *   img_size  - size of the image data
+ *   path      - UTF-16 path to the output file
+ *   img       - data to write (not modified)
+ *   img_size  - number of bytes to write
  * Returns:
- *   0 on success, non-zero on failure
+ *   0 on success; 1 open fail; 2 write fail.
  */
-int img_save(char path[], unsigned char** img, size_t img_size) {
-    FILE* file = fopen(path, "wb");
-    if (!file) {
-        return 1; // Failed to open file
+static inline int img_save(const wchar_t *path, const unsigned char *img, size_t img_size)
+{
+    if (!path || (!img && img_size != 0)) return 1;
+
+    FILE *file = _wfopen(path, L"wb");
+    if (!file) return 1;
+
+    size_t nwritten = (img_size ? fwrite(img, 1, img_size, file) : 0);
+    if (nwritten != img_size) {
+        fclose(file); return 2;
     }
 
-    if (fwrite(*img, 1, img_size, file) != img_size) {
-        fclose(file);
-        return 2; // Failed to write file
+    if (fflush(file) != 0) {
+        fclose(file); return 2;
     }
 
     fclose(file);
-    return 0; // Success
+    return 0;
 }
 
 /*
- * Destroys a previously loaded image.
- * Parameters:
- *   img       - pointer to the buffer that holds the image data
+ * Frees a previously allocated image buffer.
  * Returns:
- *   0 on success, non-zero on failure
+ *   0 on success; 1 on NULL pointer.
  */
-int img_destroy(unsigned char* img) {
-    if (!img) {
-        return 1; // NULL pointer
-    }
+static inline int img_destroy(void *img)
+{
+    if (!img) return 1;
     free(img);
     return 0;
 }
 
-int img_load_stdin(unsigned char **data, size_t *size)
+/*
+ * Reads all bytes from STDIN (binary mode) into a malloc'd buffer.
+ * Parameters:
+ *   data  - [out] buffer with data (malloc)
+ *   size  - [out] number of bytes read
+ * Returns:
+ *   0 on success; 1 on allocation failure or I/O error.
+ */
+static inline int img_load_stdin(unsigned char **data, size_t *size)
 {
-  
-size_t capacity = 4096, length = 0;
-    unsigned char *buffer = (unsigned char *) malloc(capacity);
+    if (!data || !size) return 1;
+
+    /* Ensure binary mode to avoid CRLF translation */
+    _setmode(_fileno(stdin), _O_BINARY);
+
+    size_t capacity = 4096, length = 0;
+    unsigned char *buffer = (unsigned char*)malloc(capacity);
     if (!buffer) return 1;
 
-    int byte;
-    while ((byte = getchar()) != EOF) {
-        if (length >= capacity) {
-            capacity *= 2;
-            unsigned char *new_buffer = (unsigned char *) realloc(buffer, capacity);
-            if (!new_buffer) {
-                free(buffer);
-                return 1;
-            }
-            buffer = new_buffer;
+    for (;;) {
+        if (length == capacity) {
+            size_t new_cap = capacity < (SIZE_MAX / 2) ? (capacity * 2) : SIZE_MAX;
+            if (new_cap == capacity) { free(buffer); return 1; }
+            unsigned char *tmp = (unsigned char*)realloc(buffer, new_cap);
+            if (!tmp) { free(buffer); return 1; }
+            buffer = tmp;
+            capacity = new_cap;
         }
-        buffer[length++] = (unsigned char)byte;
+
+        int ch = getchar();
+        if (ch == EOF) {
+            if (ferror(stdin)) { free(buffer); return 1; }
+            break;
+        }
+        buffer[length++] = (unsigned char)ch;
     }
 
-    *data = buffer;
+    /* shrink-to-fit optional */
+    if (length == 0) {
+        /* allow empty input; still return a valid pointer or NULL? choose NULL */
+        free(buffer);
+        *data = NULL;
+        *size = 0;
+        return 0;
+    }
+
+    unsigned char *tight = (unsigned char*)realloc(buffer, length);
+    *data = tight ? tight : buffer;
     *size = length;
     return 0;
-
-
 }
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IMG_UTILS_H
+#endif /* IMG_UTILS_WIN_H */
