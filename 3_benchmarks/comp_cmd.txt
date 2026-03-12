@@ -1,8 +1,1 @@
-ffmpeg   -i original_4k.mp4   -i test_violins_4k_50.mkv   -filter_complex "\
-    [0:v]crop=ih*8/9:ih:(iw-ih*8/9)/2:0[v0c]; \
-    [1:v]crop=ih*8/9:ih:(iw-ih*8/9)/2:0[v1c]; \
-
-    [v0c]drawtext=text='ORIGINAL':x=20:y=h-th-20:fontsize=48:fontcolor=white:shadowx=2:shadowy=2[v0t]; \
-    [v1c]drawtext=text='q50':x=w-tw-20:y=h-th-20:fontsize=48:fontcolor=white:shadowx=2:shadowy=2[v1t]; \
-    [v0t][v1t]hstack=2[stacked]; \
-    [stacked]drawtext=text='100\\% ZOOM':x=(w-tw)/2:y=40:fontsize=60:fontcolor=white:shadowx=2:shadowy=2[out]"   -map "[out]"   -c:v libx264 -crf 0 -preset veryslow   comparison_4k_og_50.mkv
+ffmpeg -i original_4k.mp4   -i test_violins_4k_50.mkv   -filter_complex "[0:v]crop=ih*8/9:ih:(iw-ih*8/9)/2:0[v0c];[1:v]crop=ih*8/9:ih:(iw-ih*8/9)/2:0[v1c];[v0c]drawtext=text='ORIGINAL':x=20:y=h-th-20:fontsize=48:fontcolor=white:shadowx=2:shadowy=2[v0t];[v1c]drawtext=text='q50':x=w-tw-20:y=h-th-20:fontsize=48:fontcolor=white:shadowx=2:shadowy=2[v1t];[v0t][v1t]hstack=2[stacked];[stacked]drawtext=text='100\\% ZOOM':x=(w-tw)/2:y=40:fontsize=60:fontcolor=white:shadowx=2:shadowy=2[out]" -map "[out]" -c:v libx264 -crf 0 -preset veryslow   comparison_4k_og_50.mkv
