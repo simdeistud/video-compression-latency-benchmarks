@@ -153,11 +153,12 @@ int main(int argc, char** argv)
     CHECK_CUDA(cudaEventCreate(&evt_start));
     CHECK_CUDA(cudaEventCreate(&evt_stop));
 
-    CHECK_NVJPEG(nvjpegEncoderStateCreate(handle, &encoder_state, stream));
+    CHECK_NVJPEG(nvjpegEncoderStateCreateWithBackend(handle, &encoder_state, NVJPEG_ENC_BACKEND_DEFAULT, stream));
     CHECK_NVJPEG(nvjpegEncoderParamsCreate(handle, &encoder_params, stream));
     CHECK_NVJPEG(nvjpegEncoderParamsSetEncoding(encoder_params, NVJPEG_ENCODING_BASELINE_DCT, stream));
     CHECK_NVJPEG(nvjpegEncoderParamsSetQuality(encoder_params, quality, stream));
     CHECK_NVJPEG(nvjpegEncoderParamsSetOptimizedHuffman(encoder_params, 0, stream));
+    //CHECK_NVJPEG(nvjpegEncoderParamsSetRestartInterval(encoder_params, 8, stream));
     CHECK_NVJPEG(nvjpegEncoderParamsSetSamplingFactors(encoder_params, get_subsampling(subsampling_str), stream));
 
     // Create pinned input double buffers
