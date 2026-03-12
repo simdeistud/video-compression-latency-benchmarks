@@ -19,7 +19,7 @@ sns.set_theme(style="whitegrid")
 # --- Main Configuration ---
 
 # Number of times to run encode/decode for each parameter set to average the time
-N_ITERATIONS = 10  # 100 is a good number of iterations, wrt to 1000 it changes almost nothing
+N_ITERATIONS = 100  # 100 is a good number of iterations, wrt to 1000 it changes almost nothing
 
 # Resolutions to test (Name: (Width, Height))
 RESOLUTIONS = {
