@@ -141,7 +141,7 @@ int main(int argc, char** argv)
     nvjpegDevAllocator_t dev_alloc = { dev_malloc, dev_free };
     nvjpegPinnedAllocator_t pinned_alloc = { host_malloc, host_free };
     CHECK_NVJPEG(nvjpegCreateEx(
-        NVJPEG_BACKEND_GPU_HYBRID,   // or NVJPEG_BACKEND_HARDWARE if supported
+        NVJPEG_BACKEND_GPU_HYBRID_DEVICE,   // or NVJPEG_BACKEND_HARDWARE if supported
         &dev_alloc,
         &pinned_alloc,
         NVJPEG_FLAGS_DEFAULT,
@@ -164,15 +164,15 @@ int main(int argc, char** argv)
 
     // Pinned input buffers (ping-pong). Copy once from pageable to pinned.
     unsigned char* in_alts[2] = { NULL, NULL };
-    CHECK_CUDA(cudaHostAlloc(&in_alts[0], inbuf_size, cudaHostAllocDefault));
-    CHECK_CUDA(cudaHostAlloc(&in_alts[1], inbuf_size, cudaHostAllocDefault));
+    CHECK_CUDA(cudaHostAlloc((void**)&in_alts[0], inbuf_size, cudaHostAllocDefault));
+    CHECK_CUDA(cudaHostAlloc((void**)&in_alts[1], inbuf_size, cudaHostAllocDefault));
     memcpy(in_alts[0], inbuf, inbuf_size);
     memcpy(in_alts[1], inbuf, inbuf_size);
 
     // Pinned host output buffers (ping-pong)
     unsigned char* out_alts[2] = { NULL, NULL };
-    CHECK_CUDA(cudaHostAlloc(&out_alts[0], out_size, cudaHostAllocDefault));
-    CHECK_CUDA(cudaHostAlloc(&out_alts[1], out_size, cudaHostAllocDefault));
+    CHECK_CUDA(cudaHostAlloc((void**)&out_alts[0], out_size, cudaHostAllocDefault));
+    CHECK_CUDA(cudaHostAlloc((void**)&out_alts[1], out_size, cudaHostAllocDefault));
 
     // Device staging buffers (ping-pong) for decode output
     unsigned char* d_out_alts[2] = { NULL, NULL };
